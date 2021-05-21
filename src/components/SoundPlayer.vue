@@ -1,109 +1,127 @@
 <template>
-  <div class="container">
-    <div class="song">
-      <div class="play">
-        <button :disabled="!ready" @click="audio.playPause()">
-          <SvgIcon v-if="ready" class="icon" type="mdi" :size="42" :path="audio.isPlaying() ? mdiPauseCircle : mdiPlayCircle"></SvgIcon>
-          <ProgressSpinner v-if="!ready" style="width:42px;height:42px"/>
-        </button>
-      </div>
-      <div class="info">
-        <div class="title" :title="title"> {{ title }} </div>
-        <div class="length"> {{ formatTime(duration) }} </div>
-        <div class="repeat">
-          <button @click="toggleRepeat">
-            <SvgIcon class="icon" type="mdi" :path="repeat ? mdiRepeat : mdiRepeatOff"></SvgIcon>
-          </button>
-        </div>
-      </div>
-      <div ref="progressElement" class="progress">
-      </div>
+  <div class="container md-color-surface md-elevation-card"
+    :class="{
+      playing: isPlaying,
+      loading: isLoading
+    }"
+    @click="togglePlay">
+    <div class="icon primary">
+      <LoadSpinner v-if="isLoading"/>
+      <SvgIcon v-if="!isLoading" type="mdi" :size="36" :path="mdiVolumeHigh" />
     </div>
-    <div class="volume">
-      <Slider v-model="volume" orientation="vertical" :min="0" :max="100" :step="1" @change="setVolume" :disabled="!ready" />
-      <SvgIcon class="icon" type="mdi" :path="mdiVolumeHigh" :size="16"></SvgIcon>
+    <div class="title">
+      {{ title }}
+    </div>
+    <div class="actions">
+      <div class="icon volume">
+        <SvgIcon type="mdi" :size="24" :path="mdiVolumeHigh" />
+      </div>
+      <div class="icon repeat" @click.stop="toggleLoop">
+        <SvgIcon type="mdi" :size="24" :path="loop ? mdiRepeat : mdiRepeatOff" />
+      </div>
+      <div class="icon more">
+        <SvgIcon type="mdi" :size="24" :path="mdiDotsVertical" />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted } from 'vue'
-import WaveSurfer from 'wavesurfer.js'
+import LoadSpinner from '@/components/LoadSpinner.vue'
+import db from '@/db'
+
+import {Howl, Howler} from 'howler';
 import SvgIcon from '@jamescoyle/vue-icon'
-import Slider from 'primevue/slider'
-import ProgressSpinner from 'primevue/progressspinner';
-import { mdiPlayCircle, mdiPauseCircle, mdiRepeat, mdiRepeatOff, mdiVolumeHigh, mdiSignal, mdiSignalOff } from '@mdi/js'
+import { mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical } from '@mdi/js'
 
 export default {
   props: {
-    file:Object
+    id: String
   },
   components: {
     SvgIcon,
-    Slider,
-    ProgressSpinner
+    LoadSpinner
   },
 
   setup(props) {
-    const last_dot_index = props.file.name.lastIndexOf(".")
-    const extension = ref(props.file.name.slice(last_dot_index + 1))
-    const title = ref(props.file.name.slice(0, last_dot_index))
-    const audio = ref(null)
-    const ready = ref(false)
-    const progressElement = ref(null)
 
-    onMounted(() => {
-      audio.value = WaveSurfer.create({
-        container: progressElement.value,
-        barWidth: 2,
-        barHeight: 1,
-        height: 60,
-        cursorColor:"#FFFFFF",
-        progressColor:"#FFFFFFCC",
-        waveColor:"#ffffff66"
+    const title = ref('test')
+    const volume = ref(1)
+    const loop = ref(false)
+    let howl = null
+    const isLoading = ref(false)
+    const isPlaying = ref(false)
 
-      })
-      audio.value.on('ready', () => ready.value = true)
-      audio.value.on('ready', () => duration.value = audio.value.getDuration())
-      audio.value.on('finish', () => repeat.value ? audio.value.play() : audio.value.stop())
-      audio.value.loadBlob(props.file)
+    const togglePlay = computed(() => {
+      if (isLoading.value) return nothing
+      if (isPlaying.value) return stop
+      else return play
     })
 
-    function formatTime(secs) {
-      var minutes = Math.floor(secs / 60) || 0;
-      var seconds = Math.floor(secs - minutes * 60) || 0;
-      return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+    function toggleLoop() {
+      loop.value = !loop.value
+      if (howl) howl.loop()
     }
 
-    function setVolume() {
-      audio.value.setVolume(volume.value / 100)
+    async function loadEntry() {
+      const loaded_entry = await db.entries.getItem(props.id)
+      if (loaded_entry !== null) {
+        title.value = loaded_entry.title
+      }
     }
 
-    const volume = ref(100)
-    const duration = ref(0)
-    const progress = ref(0)
-    const percentage = computed(() => duration.value ? progress.value/duration.value * 100 : 0)
-
-    const repeat = ref(false)
-    function toggleRepeat() {
-      repeat.value = !repeat.value
+    async function nothing() {
     }
-    
+
+    async function stop() {
+      howl.stop()
+    }
+
+    async function play() {
+      if (howl === null) {
+        console.log('loading sound')
+        isLoading.value = true
+        const src = await loadFileAsURL(props.id)
+        howl = await createHowl(src)
+        isLoading.value = false
+      }
+      howl.play()
+    }
+
+    async function loadFileAsURL(id) {
+      const loaded_file = await db.files.getItem(id)
+      if (loaded_file !== null) {
+        return URL.createObjectURL(loaded_file)
+      }
+    }
+
+    function createHowl(src) {
+      return new Promise(
+        (resolve, reject) => {
+          const howl = new Howl({
+            src,
+            format: 'mp3',
+            volume: volume.value,
+            loop: loop.value,
+            onload: () => resolve(howl),
+            onplay: () => isPlaying.value = true,
+            onend: () => isPlaying.value = false,
+            onstop: () => isPlaying.value = false
+          })
+        })
+    }
+
+    onMounted(loadEntry)
+
     return {
-      progressElement,
-      ready,
       title,
-      extension,
-      volume,
-      formatTime,
-      setVolume,
-      repeat,
-      toggleRepeat,
-      audio,
-      duration,
-      progress,
-      percentage,
-      mdiPlayCircle, mdiPauseCircle, mdiRepeat, mdiRepeatOff, mdiVolumeHigh, mdiSignal, mdiSignalOff,
+      loop,
+      isPlaying,
+      isLoading,
+      togglePlay,
+      toggleLoop,
+      mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical
     }
   }
 
@@ -111,135 +129,68 @@ export default {
 </script>
 
 <style scoped>
-
 .container {
-  --color-background: hsla(0, 100%, 100%, 0.15);
-  --color-inactive: hsla(0, 100%, 100%, 0.5);
-  --color-active: hsla(0, 100%, 100%, 0.9);
-  --color-hover: hsla(0, 100%, 100%, 0.95);
-}
-
-.container {
-  background: hsl(191, 35%, 41%);
-  background: linear-gradient(215deg, hsl(191, 35%, 41%), hsl(257, 36%, 48%));
-  margin: 1rem;
+  width: 160px;
+  height: 160px;
   display: grid;
-  grid-template-columns: 270px 30px;
-  width: 300px;
-  color: var(--color-active);
-  box-shadow: 0px 3px 15px hsla(0, 0%, 0%, 0.2);
+  grid-template-rows: 40px 56px 48px;
+  text-align: center;
+  align-items: center;
+  padding: 12px 6px 0px 6px;
+  border: solid 2px hsla(270, 96%, 79%, 0%);
 }
 
-.song {
-  background-color: var(--color-background);
-  display: grid;
-  grid-template-rows: auto auto;
-  grid-template-columns: auto 1fr;
-  grid-template-areas:
-    "play info"
-    "progress progress"
-  ;
+.container.loading {
 }
 
-.play {
-  grid-area: play;
-  padding: 0.5rem;
+.container.playing {
+  background-color: hsla(270, 96%, 79%, 14%);
+  border: solid 2px hsl(270, 96%, 79%);
 }
 
-.info {
-  grid-area: info;
-  padding-top: 0.5rem;
-  overflow: hidden;
-  user-select: none;
+.container.playing:hover {
+  background-color: hsla(270, 96%, 79%, 19%);
+}
+
+.container > * {
+  max-width: 160px;
+}
+
+.icon.primary {
+  opacity: 30%;
 }
 
 .title {
+  color: hsla(0, 100%, 100%, 87%);
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 19px;
+  text-align: center;
+  letter-spacing: 0.06em;
+  user-select: none;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  max-height: 56px;
   overflow: hidden;
-  text-overflow:ellipsis;
-  white-space: nowrap;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
 }
 
-.length {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.05rem;
+.actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
 }
 
-.progress {
-  grid-area: progress;
+.actions > .icon:hover {
+  background-color: hsla(0, 100%, 100%, 10%);
+  
 }
 
-.play button {
-  background-color: #FFFFFF00;
-  border-style: none;
-  padding: 0;
+.actions > .icon {
+  padding: 12px;
+  height: 48px;
+  width: 48px;
+  opacity: 59%;
   border-radius: 50%;
 }
-
-.repeat button {
-  background-color: #FFFFFF00;
-  border-style: none;
-  padding: 0;
-}
-
-.play button,
-.repeat button {
-  color: var(--color-active);
-  transition: 0.1s;
-}
-
-.play button:hover,
-.repeat button:hover {
-  color: var(--color-hover);
-}
-
-.play button:hover .icon,
-.repeat button:hover .icon{
-  filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .15));
-}
-
-.volume {
-  display: grid;
-  row-gap: 0.4rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.5rem;
-}
-
-.volume .icon {
-  margin: 0 auto;
-}
-
-.p-slider-vertical {
-  margin: 0 auto;
-  background-color: var(--color-inactive);
-  border-radius: 3px;
-}
-
-.p-slider-vertical ::v-deep(.p-slider-range) {
-  background-color: var(--color-active);
-  border-radius: 3px;
-}
-
-.p-slider.p-slider-vertical ::v-deep(.p-slider-handle) {
-  background-color: var(--color-active);
-  height: 0.5rem;
-  width: 0.5rem;
-  margin-left: -0.25rem;
-  margin-bottom: -0.25rem;
-  border: none;
-}
-
-.progress {
-  height: 100%;
-}
-
-.icon {
- user-select: none;
- text-align: center;
- display: block;
- filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .1));
-}
-
 </style>
