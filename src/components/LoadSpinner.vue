@@ -1,0 +1,61 @@
+<template>
+<div class="sk-swing sk-center">
+  <div class="sk-swing-dot"></div>
+  <div class="sk-swing-dot"></div>
+</div>
+</template>
+
+<script>
+export default {
+
+}
+</script>
+
+<style scoped>
+.sk-swing {
+  --sk-size: 32px;
+  --sk-color: hsl(0, 100%, 100%);
+}
+
+.sk-center { margin: auto; }
+
+.sk-swing {
+  width: var(--sk-size);
+  height: var(--sk-size);
+  position: relative;
+  animation: sk-swing 1.8s infinite linear; 
+}
+  
+.sk-swing-dot {
+  width: 45%;
+  height: 45%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  background-color: var(--sk-color);
+  border-radius: 100%;
+  animation: sk-swing-dot 2s infinite ease-in-out; 
+}
+
+.sk-swing-dot:nth-child(2) {
+  top: auto;
+  bottom: 0;
+  animation-delay: -1s; 
+}
+
+@keyframes sk-swing {
+  100% {
+    transform: rotate(360deg); 
+  } 
+}
+
+@keyframes sk-swing-dot {
+  0%, 100% {
+    transform: scale(0.2); }
+  50% {
+    transform: scale(1); 
+  } 
+}
+</style>

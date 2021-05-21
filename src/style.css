@@ -1,0 +1,234 @@
+:root {
+  --unit: 0.5rem;
+  --small-unit: 0.25rem;
+
+  --md-text-high-emphasis: 87%;
+  --md-text-medium-emphasis: 60%;
+  --md-text-disabled: 38%;
+
+  --md-color-primary: hsl(267, 95%, 76%);
+  --md-color-primary-h: 267;
+  --md-color-primary-s: 95%;
+  --md-color-primary-l: 76%;
+
+  --md-color-secondary: hsl(174, 97%, 43%);
+  --md-color-secondary-h: 174;
+  --md-color-secondary-s: 97%;
+  --md-color-secondary-l: 43%;
+
+  --md-color-background: hsl(0, 0%, 7%);
+  --md-color-background-h: 0;
+  --md-color-background-s: 0%;
+  --md-color-background-l: 7%;
+
+  --md-color-surface: hsl(0, 0%, 7%);
+  --md-color-surface-h: 0;
+  --md-color-surface-s: 0%;
+  --md-color-surface-l: 7%;
+
+  --md-color-error: hsl(349, 52%, 61%);
+  --md-color-error-h: 349;
+  --md-color-error-s: 52%;
+  --md-color-error-l: 61%;
+
+  --md-color-on-primary: hsl(0, 0%, 0%);
+  --md-color-on-primary-h: 0;
+  --md-color-on-primary-s: 0%;
+  --md-color-on-primary-l: 0%;
+
+  --md-color-on-secondary: hsl(0, 0%, 0%);
+  --md-color-on-secondary-h: 0;
+  --md-color-on-secondary-s: 0%;
+  --md-color-on-secondary-l: 0%;
+
+  --md-color-on-background: hsl(0, 0%, 100%);
+  --md-color-on-background-h: 0;
+  --md-color-on-background-s: 0%;
+  --md-color-on-background-l: 100%;
+
+  --md-color-on-surface: hsl(0, 0%, 100%);
+  --md-color-on-surface-h: 0;
+  --md-color-on-surface-s: 0%;
+  --md-color-on-surface-l: 100%;
+
+  --md-color-on-error: hsl(0, 0%, 0%);
+  --md-color-on-error-h: 0;
+  --md-color-on-error-s: 0%;
+  --md-color-on-error-l: 0%;
+}
+
+.md-color-primary {
+  background-color: var(--md-color-primary);
+  color: var(--md-color-on-primary);
+}
+
+.md-color-secondary {
+  background-color: var(--md-color-secondary);
+  color: var(--md-color-on-secondary);
+}
+
+.md-color-background {
+  background-color: var(--md-color-background);
+  color: var(--md-color-on-background);
+}
+
+.md-color-surface {
+  background-color: var(--md-color-surface);
+  color: var(--md-color-on-surface);
+}
+
+.md-color-error {
+  background-color: var(--md-color-error);
+  color: var(--md-color-on-error);
+}
+
+.md-elevation-transition {
+  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1), background-color 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: box-shadow, background-color;
+}
+
+.md-elevation-z0,
+.md-elevation-background {
+  box-shadow: none !important;
+  background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 0% )
+  );
+}
+
+.md-elevation-z1,
+.md-elevation-switch {
+  box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 5% )
+  );
+}
+
+.md-elevation-z2,
+.md-elevation-card,
+.md-elevation-raised-button,
+.md-elevation-quick-entry,
+.md-elevation-search-bar {
+  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+  background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 7% )
+  );
+}
+
+.md-elevation-z3,
+.md-elevation-refresh-indicator,
+.md-elevation-quick-entry:active,
+.md-elevation-search-bar:active {
+  box-shadow: 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
+  background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 8% )
+  );
+}
+
+.md-elevation-z4,
+.md-elevation-app-bar {
+  box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+  background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 9% )
+  );
+}
+
+.md-elevation-z6,
+.md-elevation-fab,
+.md-elevation-snackbar {
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+  /* background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 11% )
+  ); */
+}
+
+.md-elevation-z8,
+.md-elevation-menu,
+.md-elevation-bottom-nav-bar,
+.md-elevation-card:hover,
+.md-elevation-raised-button:active {
+  box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+  background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 12% )
+  );
+}
+
+.md-elevation-z9,
+.md-elevation-sub-menu-1 {
+  box-shadow: 0px 5px 6px -3px rgba(0, 0, 0, 0.2), 0px 9px 12px 1px rgba(0, 0, 0, 0.14), 0px 3px 16px 2px rgba(0, 0, 0, 0.12);
+  background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 12.5% )
+  );
+}
+
+.md-elevation-z10,
+.md-elevation-sub-menu-2 {
+  box-shadow: 0px 6px 6px -3px rgba(0, 0, 0, 0.2), 0px 10px 14px 1px rgba(0, 0, 0, 0.14), 0px 4px 18px 3px rgba(0, 0, 0, 0.12);
+  background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 13% )
+  );
+}
+
+.md-elevation-z11,
+.md-elevation-sub-menu-3 {
+  box-shadow: 0px 6px 7px -4px rgba(0, 0, 0, 0.2), 0px 11px 15px 1px rgba(0, 0, 0, 0.14), 0px 4px 20px 3px rgba(0, 0, 0, 0.12);
+  background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 13.5% )
+  );
+}
+
+.md-elevation-z12,
+.md-elevation-fab:active {
+  box-shadow: 0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 12px 17px 2px rgba(0, 0, 0, 0.14), 0px 5px 22px 4px rgba(0, 0, 0, 0.12);
+  /* background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 14% )
+  ); */
+}
+
+.md-elevation-z16,
+.md-elevation-nav-drawer,
+.md-elevation-right-drawer,
+.md-elevation-bottom-sheet {
+  box-shadow: 0px 8px 10px -5px rgba(0, 0, 0, 0.2), 0px 16px 24px 2px rgba(0, 0, 0, 0.14), 0px 6px 30px 5px rgba(0, 0, 0, 0.12);
+  background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 15% )
+  );
+}
+
+.md-elevation-z24,
+.md-elevation-dialog,
+.md-elevation-picker {
+  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+  background-color: hsl(
+    var(--md-color-surface-h),
+    var(--md-color-surface-s),
+    calc( var(--md-color-surface-l) + 16% )
+  );
+}
+
+
+
+
