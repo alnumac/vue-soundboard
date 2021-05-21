@@ -31,7 +31,7 @@ import { ref, computed, onMounted } from 'vue'
 import LoadSpinner from '@/components/LoadSpinner.vue'
 import db from '@/db'
 
-import {Howl, Howler} from 'howler';
+import { Howl } from 'howler';
 import SvgIcon from '@jamescoyle/vue-icon'
 import { mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical } from '@mdi/js'
 
@@ -80,7 +80,6 @@ export default {
 
     async function play() {
       if (howl === null) {
-        console.log('loading sound')
         isLoading.value = true
         const src = await loadFileAsURL(props.id)
         howl = await createHowl(src)
@@ -98,7 +97,7 @@ export default {
 
     function createHowl(src) {
       return new Promise(
-        (resolve, reject) => {
+        (resolve) => {
           const howl = new Howl({
             src,
             format: 'mp3',
