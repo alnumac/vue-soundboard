@@ -47,7 +47,6 @@ export default {
         entries: toRaw(entries)
       }
       await db.boards.setItem(id.value, new_board)
-      console.log('saved board')
     }
 
     onMounted(loadBoard)
@@ -55,7 +54,6 @@ export default {
 
     function addSound(soundId) {
       entries.unshift(soundId)
-      console.log(entries)
     }
 
     return {
