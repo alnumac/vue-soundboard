@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SoundPlayer :id="id" />
+    <SoundPlayer :id="id" @remove="$emit('remove')"/>
   </div>
 </template>
 
@@ -15,6 +15,7 @@ export default {
   components: {
     SoundPlayer
   },
+  emits: ['remove'],
   setup() {
     return {
 

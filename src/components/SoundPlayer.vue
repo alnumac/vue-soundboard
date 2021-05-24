@@ -21,7 +21,7 @@
         <SvgIcon type="mdi" :size="24" :path="loop ? mdiRepeat : mdiRepeatOff" />
       </div>
       <div class="icon more">
-        <SvgIcon type="mdi" :size="24" :path="mdiDotsVertical" />
+        <SoundMore @remove="remove"/>
       </div>
     </div>
   </div>
@@ -38,6 +38,7 @@ import SvgIcon from '@jamescoyle/vue-icon'
 import { mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical } from '@mdi/js'
 
 import SoundVolume from '@/components/SoundVolume'
+import SoundMore from '@/components/SoundMore'
 
 export default {
   props: {
@@ -46,10 +47,12 @@ export default {
   components: {
     SvgIcon,
     LoadSpinner,
-    SoundVolume
+    SoundVolume,
+    SoundMore
   },
+  emits: ['remove'],
 
-  setup(props) {
+  setup(props, context) {
 
     const title = ref('test')
 
@@ -142,6 +145,12 @@ export default {
         })
     }
 
+    function remove() {
+      if (howl)
+        howl.unload()
+      context.emit('remove')
+    }
+
     onMounted(loadEntry)
 
     return {
@@ -152,6 +161,7 @@ export default {
       isLoading,
       togglePlay,
       toggleLoop,
+      remove,
       mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical
     }
   }
@@ -223,8 +233,7 @@ export default {
   border-radius: 50%;
 }
 
-.actions > .icon.loop,
-.actions > .icon.more {
+.actions > .icon.loop {
   padding: 12px;
 }
 </style>
