@@ -82,10 +82,6 @@ export default {
   cursor: pointer;
 }
 
-.volume-container:focus {
-  background-color: ;
-}
-
 .slider-container {
   padding: 12px 0px;
 }
