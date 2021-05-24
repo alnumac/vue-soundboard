@@ -2,19 +2,30 @@
   <header class="md-elevation-app-bar md-color-surface">
     <div class="icon"><SvgIcon type="mdi" :size="24" :path="mdiPlayCircle"></SvgIcon></div>
     <h1>SoundBoard</h1>
+    <Slider v-model="globalVolume" :min="0" :max="100" :step="1" />
   </header>
 </template>
 
 <script>
+import { ref, watch } from 'vue'
 import SvgIcon from '@jamescoyle/vue-icon'
 import { mdiPlayCircle } from '@mdi/js'
 
+import Slider from 'primevue/slider';
+import { Howler } from 'howler';
+
 export default {
   components: {
-    SvgIcon
+    SvgIcon,
+    Slider
   },
   setup() {
+    const globalVolume = ref(Howler.volume() * 100)
+    watch(globalVolume, (newValue, oldValue) => {
+      Howler.volume(newValue * 0.01)
+    })
     return {
+      globalVolume,
       mdiPlayCircle
     }
   }
@@ -40,6 +51,7 @@ header {
 h1 {
   margin: 0;
   padding-left: 20px;
+  padding-right: 20px;
   font-size: 1.25rem;
   line-height: 2rem;
   letter-spacing: 0.4px;
@@ -49,5 +61,9 @@ h1 {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.p-slider-horizontal {
+  width: 100px;
 }
 </style>
