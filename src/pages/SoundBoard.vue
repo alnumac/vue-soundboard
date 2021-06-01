@@ -1,9 +1,13 @@
 <template>
   <main>
-    <BoardEntry v-for="entry in entries" :key="entry" class="" :id="entry" />
     <div class="md-color-surface md-elevation-card add">
       <SoundUpload  @upload="addSound"/>
     </div>
+    <draggable :list="entries" tag="transition-group" :component-data="{name:'list'}" :itemKey="(element) => element">
+      <template #item="{element, index}">
+          <BoardEntry class="" :id="element" @remove="removeEntry(index)" />
+      </template>
+    </draggable>
   </main>
 </template>
 
@@ -11,13 +15,15 @@
 import { ref, reactive, watch, toRefs, onMounted, toRaw } from 'vue'
 import BoardEntry from '@/components/BoardEntry.vue'
 import SoundUpload from '@/components/SoundUpload.vue'
+import draggable from 'vuedraggable'
 import db from '@/db'
 
 export default {
   name: 'SoundBoard',
   components: {
     BoardEntry,
-    SoundUpload
+    SoundUpload,
+    draggable
   },
 
   props: {
@@ -56,10 +62,15 @@ export default {
       entries.unshift(soundId)
     }
 
+    function removeEntry(index) {
+      entries.splice(index, 1)
+    }
+
     return {
       title,
       entries,
-      addSound
+      addSound,
+      removeEntry
     }
   }
 }
@@ -74,5 +85,10 @@ main {
 
 .add {
   grid-column-end: span 2;
+}
+
+
+.list-move {
+  transition: transform 0.5s;
 }
 </style>

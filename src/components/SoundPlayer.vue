@@ -14,26 +14,31 @@
     </div>
     <div class="actions">
       <div class="icon volume">
-        <SvgIcon type="mdi" :size="24" :path="mdiVolumeHigh" />
+        <!-- <SvgIcon type="mdi" :size="24" :path="mdiVolumeHigh" /> -->
+        <SoundVolume v-model="volume" />
       </div>
-      <div class="icon repeat" @click.stop="toggleLoop">
+      <div class="icon loop" @click.stop="toggleLoop">
         <SvgIcon type="mdi" :size="24" :path="loop ? mdiRepeat : mdiRepeatOff" />
       </div>
       <div class="icon more">
-        <SvgIcon type="mdi" :size="24" :path="mdiDotsVertical" />
+        <SoundMore @remove="remove"/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import LoadSpinner from '@/components/LoadSpinner.vue'
 import db from '@/db'
+import { debounce } from 'lodash';
 
 import { Howl } from 'howler';
 import SvgIcon from '@jamescoyle/vue-icon'
 import { mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical } from '@mdi/js'
+
+import SoundVolume from '@/components/SoundVolume'
+import SoundMore from '@/components/SoundMore'
 
 export default {
   props: {
@@ -41,14 +46,30 @@ export default {
   },
   components: {
     SvgIcon,
-    LoadSpinner
+    LoadSpinner,
+    SoundVolume,
+    SoundMore
   },
+  emits: ['remove'],
 
-  setup(props) {
+  setup(props, context) {
 
     const title = ref('test')
+
     const volume = ref(1)
+    watch(volume, (newValue, oldValue) => {
+      if (howl)
+        howl.volume(newValue)
+      debouncedSaveEntry()
+    })
+
     const loop = ref(false)
+    watch(loop, (newValue, oldValue) => {
+      if (howl)
+        howl.loop(newValue)
+      debouncedSaveEntry()
+    })
+
     let howl = null
     const isLoading = ref(false)
     const isPlaying = ref(false)
@@ -68,8 +89,21 @@ export default {
       const loaded_entry = await db.entries.getItem(props.id)
       if (loaded_entry !== null) {
         title.value = loaded_entry.title
+        volume.value = loaded_entry.volume
+        loop.value = loaded_entry.value
       }
     }
+
+    async function saveEntry() {
+      const new_entry = {
+        title: title.value,
+        volume: volume.value,
+        loop: loop.value
+      }
+      await db.entries.setItem(props.id, new_entry)
+    }
+
+    const debouncedSaveEntry = debounce(saveEntry, 300)
 
     async function nothing() {
     }
@@ -111,15 +145,23 @@ export default {
         })
     }
 
+    function remove() {
+      if (howl)
+        howl.unload()
+      context.emit('remove')
+    }
+
     onMounted(loadEntry)
 
     return {
       title,
+      volume,
       loop,
       isPlaying,
       isLoading,
       togglePlay,
       toggleLoop,
+      remove,
       mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical
     }
   }
@@ -180,16 +222,18 @@ export default {
   grid-template-columns: repeat(3, 1fr);
 }
 
-.actions > .icon:hover {
+/* .actions > .icon:hover {
   background-color: hsla(0, 100%, 100%, 10%);
-  
-}
+} */
 
 .actions > .icon {
-  padding: 12px;
   height: 48px;
   width: 48px;
-  opacity: 59%;
+  color: hsla(0, 100%, 100%, 59%);
   border-radius: 50%;
+}
+
+.actions > .icon.loop {
+  padding: 12px;
 }
 </style>

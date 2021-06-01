@@ -92,4 +92,22 @@ hr {
   margin-top: 2rem;
 }
 
+div.p-slider .p-slider-range {
+  background: var(--md-color-primary);
+}
+
+div.p-slider .p-slider-handle {
+  height: 1.143rem;
+  width: 1.143rem;
+  background: #ffffff;
+  border: 2px solid var(--md-color-primary);
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+div.p-slider:not(.p-disabled) .p-slider-handle:hover {
+  background: var(--md-color-primary);
+  border-color: var(--md-color-primary);
+}
+
 </style>
