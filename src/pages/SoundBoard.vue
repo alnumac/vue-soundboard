@@ -1,13 +1,13 @@
 <template>
   <main>
-    <draggable :list="entries" tag="transition-group" :component-data="{name:'slide'}" :itemKey="(element) => element">
+    <div class="md-color-surface md-elevation-card add">
+      <SoundUpload  @upload="addSound"/>
+    </div>
+    <draggable :list="entries" tag="transition-group" :component-data="{name:'list'}" :itemKey="(element) => element">
       <template #item="{element, index}">
           <BoardEntry class="" :id="element" @remove="removeEntry(index)" />
       </template>
     </draggable>
-    <div class="md-color-surface md-elevation-card add">
-      <SoundUpload  @upload="addSound"/>
-    </div>
   </main>
 </template>
 
@@ -85,5 +85,10 @@ main {
 
 .add {
   grid-column-end: span 2;
+}
+
+
+.list-move {
+  transition: transform 0.5s;
 }
 </style>
