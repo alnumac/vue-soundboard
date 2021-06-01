@@ -55,6 +55,7 @@ export default {
   setup(props, context) {
 
     const title = ref('test')
+    const extension = ref('mp3')
 
     const volume = ref(1)
     watch(volume, (newValue, oldValue) => {
@@ -91,6 +92,7 @@ export default {
         title.value = loaded_entry.title
         volume.value = loaded_entry.volume
         loop.value = loaded_entry.value
+        extension.value = loaded_entry.extension || 'mp3'
       }
     }
 
@@ -98,7 +100,8 @@ export default {
       const new_entry = {
         title: title.value,
         volume: volume.value,
-        loop: loop.value
+        loop: loop.value,
+        extension: extension.value
       }
       await db.entries.setItem(props.id, new_entry)
     }
@@ -134,7 +137,7 @@ export default {
         (resolve) => {
           const howl = new Howl({
             src,
-            format: 'mp3',
+            format: extension.value,
             volume: volume.value,
             loop: loop.value,
             onload: () => resolve(howl),
