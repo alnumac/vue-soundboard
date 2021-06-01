@@ -5,7 +5,7 @@
       loading: isLoading
     }"
     @click="togglePlay">
-    <div class="icon primary" style="opacity: 30%;">
+    <div class="icon primary">
       <LoadSpinner v-if="isLoading"/>
       <SvgIcon v-if="!isLoading" type="mdi" :size="36" :path="mdiVolumeHigh" />
     </div>
@@ -201,7 +201,7 @@ export default {
 }
 
 .icon.primary {
-  opacity: 30%;
+  opacity: 0.3;
 }
 
 .title {
