@@ -1,7 +1,13 @@
 <template>
   <header class="md-elevation-app-bar md-color-surface">
     <div class="icon"><SvgIcon type="mdi" :size="24" :path="mdiPlayCircle"></SvgIcon></div>
-    <h1>SoundBoard</h1>
+    <slot name="title">
+      <h1>App</h1>
+    </slot>
+    <slot name="center">
+    </slot>
+    <slot name="actions">
+    </slot>
     <Slider v-model="globalVolume" :min="0" :max="100" :step="1" />
   </header>
 </template>
