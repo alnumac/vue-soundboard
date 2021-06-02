@@ -1,11 +1,10 @@
 <template>
-  <TheHeader />
   <SoundBoard />
 </template>
 
 <script>
 // import { ref } from 'vue'
-import TheHeader from '@/components/TheHeader.vue'
+// import TheHeader from '@/components/TheHeader.vue'
 import SoundBoard from '@/pages/SoundBoard.vue'
 
 //mdiHeadphones, mdiMusic, mdiMusicNote, mdiWaveform
@@ -13,7 +12,7 @@ import SoundBoard from '@/pages/SoundBoard.vue'
 export default {
   name: 'App',
   components: {
-    TheHeader,
+    // TheHeader,
     SoundBoard
   },
   setup() {

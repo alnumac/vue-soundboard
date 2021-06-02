@@ -1,4 +1,9 @@
 <template>
+  <TheHeader>
+    <template #title>
+      <EditableText v-model="title"/>
+    </template>
+  </TheHeader>
   <main>
     <div class="md-color-surface md-elevation-card add">
       <SoundUpload  @upload="addSound"/>
@@ -13,6 +18,9 @@
 
 <script>
 import { ref, reactive, watch, toRefs, onMounted, toRaw } from 'vue'
+import { debounce } from 'lodash';
+import TheHeader from '@/components/TheHeader.vue'
+import EditableText from '@/components/EditableText.vue'
 import BoardEntry from '@/components/BoardEntry.vue'
 import SoundUpload from '@/components/SoundUpload.vue'
 import draggable from 'vuedraggable'
@@ -21,6 +29,8 @@ import db from '@/db'
 export default {
   name: 'SoundBoard',
   components: {
+    TheHeader,
+    EditableText,
     BoardEntry,
     SoundUpload,
     draggable
@@ -54,9 +64,10 @@ export default {
       }
       await db.boards.setItem(id.value, new_board)
     }
+    const debouncedSaveBoard = debounce(saveBoard, 300)
 
     onMounted(loadBoard)
-    watch([title, entries], saveBoard, { deep: true })
+    watch([title, entries], debouncedSaveBoard, { deep: true })
 
     function addSound(soundId) {
       entries.unshift(soundId)
