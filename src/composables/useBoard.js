@@ -1,4 +1,4 @@
-import { ref, reactive, watch, onMounted, toRaw } from 'vue'
+import { ref, reactive, computed, watch, onMounted, toRaw } from 'vue'
 import { v4 as uuidv4 } from 'uuid';
 import { debounce } from 'lodash';
 
@@ -12,6 +12,9 @@ export default function useBoard(boardId) {
   const id = ref(boardId)
   const title = ref('Default')
   const entries = reactive([])
+  const sections = computed(() => {
+    return []
+  })
 
   async function loadBoard() {
     const loaded_board = await db.boards.getItem(id.value)
@@ -52,6 +55,14 @@ export default function useBoard(boardId) {
     entries.unshift(prepareEntry({value, type}))
   }
 
+  function addAudioEntry(value) {
+    entries.unshift(prepareEntry({value, type: 'audio'}))
+  }
+
+  function addSeparatorEntry(value = 'New section') {
+    entries.push(prepareEntry({value, type: 'separator'}))
+  }
+
   function removeEntry(entry) {
     const index = entries.indexOf(entry)
     entries.splice(index, 1)
@@ -64,6 +75,8 @@ export default function useBoard(boardId) {
     title,
     entries,
     addEntry,
+    addAudioEntry,
+    addSeparatorEntry,
     removeEntry
   }
 }

@@ -3,7 +3,9 @@ import sha1 from 'js-sha1'
 import { v4 as uuidv4 } from 'uuid';
 import db from '@/db'
 
-export default function useAudioUpload(entries) {
+export default function useAudioUpload({
+  addToBoard = () => {}
+}) {
 
   const uploadElement = ref(null)
 
@@ -43,21 +45,13 @@ export default function useAudioUpload(entries) {
     }
   }
 
-  function addToBoardEntries(hash) {
-    entries.unshift({
-      id: uuidv4(),
-      type: 'audio',
-      value: hash
-    })
-  }
-
   async function onFileUpload (event) {
     event.target.files.forEach( async (file) => {
       let buffer = await file.arrayBuffer()
       let file_sha1 = await sha1(buffer)
       await addToFileDb(file_sha1, file)
       await addToSoundDb(file_sha1, file)
-      addToBoardEntries(file_sha1)
+      addToBoard(file_sha1, 'audio')
     })
   }
 

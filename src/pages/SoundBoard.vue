@@ -21,7 +21,12 @@
             :id="element.value"
             @remove="removeEntry(element)"/>
           <BoardSeparator 
-            v-if="element.type === 'separator'" />
+            v-if="element.type === 'separator'"
+            @remove="removeEntry(element)">
+            <template #title>
+              <EditableText v-model="element.value"/>
+            </template>
+          </BoardSeparator>
         </div>
       </template>
     </draggable>
@@ -66,13 +71,13 @@ export default {
   },
 
   setup(props) {
-    const { title, entries, addEntry, removeEntry } = useBoard(props.id)
+    const { title, entries, addEntry, addAudioEntry, addSeparatorEntry, removeEntry } = useBoard(props.id)
     const { globalVolume, stopAll } = useGlobalAudioControls()
-    const { uploadElement, showUploadPrompt, onFileUpload } = useAudioUpload(entries)
-    const { addMenuElement, toggleAddMenu, addMenuItems } = useAddBoardEntryMenu({onUpload: showUploadPrompt})
+    const { uploadElement, showUploadPrompt, onFileUpload } = useAudioUpload({addToBoard: addAudioEntry})
+    const { addMenuElement, toggleAddMenu, addMenuItems } = useAddBoardEntryMenu({onUpload: showUploadPrompt, onSeparator: addSeparatorEntry})
 
     return {
-      title, entries, addEntry, removeEntry,
+      title, entries, addEntry, addAudioEntry, addSeparatorEntry, removeEntry,
       uploadElement, showUploadPrompt, onFileUpload,
       globalVolume, stopAll,
       addMenuElement, toggleAddMenu, addMenuItems,

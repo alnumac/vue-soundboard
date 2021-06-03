@@ -15,12 +15,12 @@ export default function useAddBoardEntryMenu({
       items: [{
           label: 'Upload',
           icon: 'pi pi-upload',
-          command: onUpload
+          command: () => onUpload()
         },
         {
           label: 'From library',
           icon: 'pi pi-book',
-          command: onLibrary
+          command: () => onLibrary()
         }
       ]
     },
@@ -29,7 +29,7 @@ export default function useAddBoardEntryMenu({
       items: [{
           label: 'Create',
           icon: 'pi pi-plus',
-          command: onSeparator
+          command: () => onSeparator()
         }
       ]
     },
