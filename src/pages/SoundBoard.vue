@@ -9,12 +9,10 @@
     <template #right>
       <Button type="button" label="Add" icon="pi pi-plus" @click="toggleAddMenu" />
       <Menu ref="addMenuElement" :model="addMenuItems" :popup="true" />
+      <input class="hidden" ref="uploadElement" type="file" @change="onFileUpload" accept="audio/*">
     </template>
   </TheHeader>
   <main>
-    <div class="md-color-surface md-elevation-card add">
-      <SoundUpload  @upload="addSound"/>
-    </div>
     <draggable :list="entries" tag="transition-group" :component-data="{name:'list'}" :itemKey="(element) => element">
       <template #item="{element, index}">
           <BoardEntry class="" :id="element" @remove="removeEntry(index)" />
@@ -35,9 +33,10 @@ import Slider from 'primevue/slider';
 import { Howler } from 'howler';
 
 import BoardEntry from '@/components/BoardEntry.vue'
-import SoundUpload from '@/components/SoundUpload.vue'
 import draggable from 'vuedraggable'
 import db from '@/db'
+
+import useSoundUpload from '@/composables/useSoundUpload'
 
 export default {
   name: 'SoundBoard',
@@ -48,7 +47,6 @@ export default {
     Button,
     Menu,
     BoardEntry,
-    SoundUpload,
     draggable
   },
 
@@ -61,6 +59,8 @@ export default {
 
   setup(props) {
     const { id } = toRefs(props)
+    let entries = reactive([])
+    const { uploadElement, showUploadPrompt, onFileUpload } = useSoundUpload(entries)
     const globalVolume = ref(Howler.volume() * 100)
     watch(globalVolume, (newValue, oldValue) => {
       Howler.volume(newValue * 0.01)
@@ -73,6 +73,7 @@ export default {
             label: 'Upload',
             icon: 'pi pi-upload',
             command: () => {
+              showUploadPrompt()
             }
           },
           {
@@ -96,7 +97,7 @@ export default {
     ])
 
     const title = ref('Default')
-    let entries = reactive([])
+    
 
     async function loadBoard() {
       const loaded_board = await db.boards.getItem(id.value)
@@ -131,6 +132,7 @@ export default {
     }
 
     return {
+      uploadElement, showUploadPrompt, onFileUpload,
       globalVolume,
       addMenuElement,
       addMenuItems,
@@ -149,6 +151,10 @@ main {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(12, 1fr);
+}
+
+.hidden {
+  display: none;
 }
 
 .p-slider.p-slider-horizontal {
