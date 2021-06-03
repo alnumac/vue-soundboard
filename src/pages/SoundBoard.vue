@@ -151,8 +151,9 @@ main {
   grid-template-columns: repeat(12, 1fr);
 }
 
-.p-slider-horizontal {
+.p-slider.p-slider-horizontal {
   width: 100px;
+  height: 4px;
 }
 
 .add {
