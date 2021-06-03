@@ -12,26 +12,52 @@ export default function useBoard(boardId) {
   const id = ref(boardId)
   const title = ref('Default')
   const entries = reactive([])
-  const sections = computed(() => {
-    return []
-  })
+  const sections = reactive([])
 
   async function loadBoard() {
     const loaded_board = await db.boards.getItem(id.value)
     if (loaded_board !== null) {
       title.value = loaded_board.title
       entries.push(...loadEntries(loaded_board.entries))
+      sections.push(...loadSections(loaded_board.sections))
     }
   }
 
   async function saveBoard() {
     const new_board = {
       title: title.value,
-      entries: toRaw(entries)
+      entries: toRaw(entries),
+      sections: toRaw(sections),
     }
     await db.boards.setItem(id.value, new_board)
   }
   const debouncedSaveBoard = debounce(saveBoard, 300)
+
+  function loadSections(sections_in_db) {
+    const loaded_sections = []
+    sections_in_db.forEach(section => {
+      loaded_sections.push(prepareSection(section))
+    })
+    return loaded_sections
+  }
+
+  function prepareSection({id = uuidv4(), title = "New section", entries = []}) {
+    return {
+      id,
+      title,
+      entries: loadEntries(entries)
+    }
+  }
+
+  function addSection(params = {}) {
+    sections.push(prepareSection(params))
+  }
+
+  function removeSection(section) {
+    const index = sections.indexOf(section)
+    entries.push(...loadEntries(section.entries))
+    sections.splice(index, 1)
+  }
 
   function loadEntries(entries_in_db) {
     const loaded_entries = []
@@ -69,11 +95,14 @@ export default function useBoard(boardId) {
   }
 
   onMounted(loadBoard)
-  watch([title, entries], debouncedSaveBoard, { deep: true })
+  watch([title, entries, sections], debouncedSaveBoard, { deep: true })
 
   return {
     title,
     entries,
+    sections,
+    addSection,
+    removeSection,
     addEntry,
     addAudioEntry,
     addSeparatorEntry,

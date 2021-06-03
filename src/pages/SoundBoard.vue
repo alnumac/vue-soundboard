@@ -13,23 +13,33 @@
     </template>
   </TheHeader>
   <main>
-    <draggable :list="entries" tag="transition-group" :component-data="{name:'list'}" :itemKey="(entry) => entry.id">
-      <template #item="{element}">
-        <div :class="['entry', element.type]">
+    <section>
+      <draggable :list="entries" itemKey="id" group="audioBoard" :animation="500" class="grid" >
+        <template #item="{element}">
           <SoundPlayer
-            v-if="element.type === 'audio'"
             :id="element.value"
+            class="soundplayer"
+            v-if="element.type === 'audio'"
             @remove="removeEntry(element)"/>
-          <BoardSeparator 
-            v-if="element.type === 'separator'"
-            @remove="removeEntry(element)">
-            <template #title>
-              <EditableText v-model="element.value"/>
-            </template>
-          </BoardSeparator>
-        </div>
-      </template>
-    </draggable>
+        </template>
+      </draggable>
+    </section>
+    <section v-for="section in sections" :key="section.id">
+      <BoardSeparator class="separator" @remove="removeSection(section)">
+        <template #title>
+          <EditableText v-model="section.title" />
+        </template>
+      </BoardSeparator>
+      <draggable :list="section.entries" itemKey="id" group="audioBoard" :animation="300" class="grid" >
+        <template #item="{element}">
+          <SoundPlayer
+            :id="element.value"
+            class="soundplayer"
+            v-if="element.type === 'audio'"
+            @remove="removeEntry(element)"/>
+        </template>
+      </draggable>
+    </section>
   </main>
 </template>
 
@@ -71,13 +81,13 @@ export default {
   },
 
   setup(props) {
-    const { title, entries, addEntry, addAudioEntry, addSeparatorEntry, removeEntry } = useBoard(props.id)
+    const { title, entries, sections, addSection, removeSection, addEntry, addAudioEntry, addSeparatorEntry, removeEntry } = useBoard(props.id)
     const { globalVolume, stopAll } = useGlobalAudioControls()
     const { uploadElement, showUploadPrompt, onFileUpload } = useAudioUpload({addToBoard: addAudioEntry})
-    const { addMenuElement, toggleAddMenu, addMenuItems } = useAddBoardEntryMenu({onUpload: showUploadPrompt, onSeparator: addSeparatorEntry})
+    const { addMenuElement, toggleAddMenu, addMenuItems } = useAddBoardEntryMenu({onUpload: showUploadPrompt, onSeparator: addSection})
 
     return {
-      title, entries, addEntry, addAudioEntry, addSeparatorEntry, removeEntry,
+      title, entries, sections, addSection, removeSection, addEntry, addAudioEntry, addSeparatorEntry, removeEntry,
       uploadElement, showUploadPrompt, onFileUpload,
       globalVolume, stopAll,
       addMenuElement, toggleAddMenu, addMenuItems,
@@ -87,17 +97,17 @@ export default {
 </script>
 
 <style scoped>
-main {
+.grid {
   display: grid;
   gap: 1rem;
   grid-template-columns: [row-start] repeat(12, 1fr) [row-end];
 }
 
-.entry.audio {
+.soundplayer {
   grid-column-end: span 2;
 }
 
-.entry.separator {
+.separator {
   grid-column-start: row-start;
   grid-column-end: row-end;
 }

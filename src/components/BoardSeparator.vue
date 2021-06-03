@@ -1,6 +1,6 @@
 <template>
   <hr>
-  <div class="container">
+  <div v-bind="$attrs" class="container">
     <slot name="title">Test</slot>
     <div class="actions">
       <Button
