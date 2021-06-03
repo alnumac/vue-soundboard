@@ -1,10 +1,11 @@
-import { ref } from 'vue'
+import { reactive } from 'vue'
 import sha1 from 'js-sha1'
+import { v4 as uuidv4 } from 'uuid';
 import db from '@/db'
 
-export default function useSoundUpload(entries) {
+export default function useBoardEntries(board) {
 
-  const uploadElement = ref(null)
+  const entries = reactive([])
 
   function showUploadPrompt() {
     uploadElement.value.click()
@@ -42,8 +43,12 @@ export default function useSoundUpload(entries) {
     }
   }
 
-  function addToBoardEntries(id) {
-    entries.unshift(id)
+  function addToBoardEntries(hash) {
+    entries.unshift({
+      id: uuidv4(),
+      type: 'audio',
+      value: hash
+    })
   }
 
   async function onFileUpload (event) {

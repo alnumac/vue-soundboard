@@ -13,30 +13,37 @@
     </template>
   </TheHeader>
   <main>
-    <draggable :list="entries" tag="transition-group" :component-data="{name:'list'}" :itemKey="(element) => element">
-      <template #item="{element, index}">
-          <BoardEntry class="" :id="element" @remove="removeEntry(index)" />
+    <draggable :list="entries" tag="transition-group" :component-data="{name:'list'}" :itemKey="(entry) => entry.id">
+      <template #item="{element}">
+        <div :class="['entry', element.type]">
+          <SoundPlayer
+            v-if="element.type === 'audio'"
+            :id="element.value"
+            @remove="removeEntry(element)"/>
+          <BoardSeparator 
+            v-if="element.type === 'separator'" />
+        </div>
       </template>
     </draggable>
   </main>
 </template>
 
 <script>
-import { ref, reactive, watch, toRefs, onMounted, toRaw } from 'vue'
-import { debounce } from 'lodash';
 
 import TheHeader from '@/components/TheHeader.vue'
 import EditableText from '@/components/EditableText.vue'
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
 import Slider from 'primevue/slider';
-import { Howler } from 'howler';
-
-import BoardEntry from '@/components/BoardEntry.vue'
+import SoundPlayer from '@/components/SoundPlayer.vue'
+import BoardSeparator from '@/components/BoardSeparator.vue'
 import draggable from 'vuedraggable'
-import db from '@/db'
 
-import useSoundUpload from '@/composables/useSoundUpload'
+import useBoard from '@/composables/useBoard'
+import useGlobalAudioControls from '@/composables/useGlobalAudioControls'
+import useAudioUpload from '@/composables/useAudioUpload'
+import useAddBoardEntryMenu from '@/composables/useAddBoardEntryMenu'
+
 
 export default {
   name: 'SoundBoard',
@@ -46,8 +53,9 @@ export default {
     Slider,
     Button,
     Menu,
-    BoardEntry,
-    draggable
+    draggable,
+    SoundPlayer,
+    BoardSeparator
   },
 
   props: {
@@ -58,89 +66,16 @@ export default {
   },
 
   setup(props) {
-    const { id } = toRefs(props)
-    let entries = reactive([])
-    const { uploadElement, showUploadPrompt, onFileUpload } = useSoundUpload(entries)
-    const globalVolume = ref(Howler.volume() * 100)
-    watch(globalVolume, (newValue, oldValue) => {
-      Howler.volume(newValue * 0.01)
-    })
-    const addMenuElement = ref(null)
-    const addMenuItems = reactive([
-      {
-        label: 'Audio',
-        items: [{
-            label: 'Upload',
-            icon: 'pi pi-upload',
-            command: () => {
-              showUploadPrompt()
-            }
-          },
-          {
-            label: 'From library',
-            icon: 'pi pi-book',
-            command: () => {
-            }
-          }
-        ]
-      },
-      {
-        label: 'Separator',
-        items: [{
-            label: 'Create',
-            icon: 'pi pi-plus',
-            command: () => {
-            }
-          }
-        ]
-      },
-    ])
-
-    const title = ref('Default')
-    
-
-    async function loadBoard() {
-      const loaded_board = await db.boards.getItem(id.value)
-      if (loaded_board !== null) {
-        title.value = loaded_board.title
-        entries.push(...loaded_board.entries)
-      }
-    }
-
-    async function saveBoard() {
-      const new_board = {
-        title: title.value,
-        entries: toRaw(entries)
-      }
-      await db.boards.setItem(id.value, new_board)
-    }
-    const debouncedSaveBoard = debounce(saveBoard, 300)
-
-    onMounted(loadBoard)
-    watch([title, entries], debouncedSaveBoard, { deep: true })
-
-    function addSound(soundId) {
-      entries.unshift(soundId)
-    }
-
-    function removeEntry(index) {
-      entries.splice(index, 1)
-    }
-
-    function toggleAddMenu(event) {
-      addMenuElement.value.toggle(event);
-    }
+    const { title, entries, addEntry, removeEntry } = useBoard(props.id)
+    const { globalVolume, stopAll } = useGlobalAudioControls()
+    const { uploadElement, showUploadPrompt, onFileUpload } = useAudioUpload(entries)
+    const { addMenuElement, toggleAddMenu, addMenuItems } = useAddBoardEntryMenu({onUpload: showUploadPrompt})
 
     return {
+      title, entries, addEntry, removeEntry,
       uploadElement, showUploadPrompt, onFileUpload,
-      globalVolume,
-      addMenuElement,
-      addMenuItems,
-      toggleAddMenu,
-      title,
-      entries,
-      addSound,
-      removeEntry
+      globalVolume, stopAll,
+      addMenuElement, toggleAddMenu, addMenuItems,
     }
   }
 }
@@ -150,7 +85,16 @@ export default {
 main {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: [row-start] repeat(12, 1fr) [row-end];
+}
+
+.entry.audio {
+  grid-column-end: span 2;
+}
+
+.entry.separator {
+  grid-column-start: row-start;
+  grid-column-end: row-end;
 }
 
 .hidden {
