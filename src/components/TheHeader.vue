@@ -1,31 +1,30 @@
 <template>
   <header class="md-elevation-app-bar md-color-surface">
-    <div class="icon"><SvgIcon type="mdi" :size="24" :path="mdiPlayCircle"></SvgIcon></div>
-    <h1>SoundBoard</h1>
-    <Slider v-model="globalVolume" :min="0" :max="100" :step="1" />
+    <div class="left">
+      <div class="icon"><SvgIcon type="mdi" :size="24" :path="mdiPlayCircle"></SvgIcon></div>
+      <slot name="title">App</slot>
+    </div>
+    <div class="center">
+      <slot name="center">
+      </slot>
+    </div>
+    <div class="right">
+      <slot name="right"></slot>
+    </div>
   </header>
 </template>
 
 <script>
-import { ref, watch } from 'vue'
+// import { ref, watch } from 'vue'
 import SvgIcon from '@jamescoyle/vue-icon'
 import { mdiPlayCircle } from '@mdi/js'
 
-import Slider from 'primevue/slider';
-import { Howler } from 'howler';
-
 export default {
   components: {
-    SvgIcon,
-    Slider
+    SvgIcon
   },
   setup() {
-    const globalVolume = ref(Howler.volume() * 100)
-    watch(globalVolume, (newValue, oldValue) => {
-      Howler.volume(newValue * 0.01)
-    })
     return {
-      globalVolume,
       mdiPlayCircle
     }
   }
@@ -37,9 +36,14 @@ header {
   position: sticky;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 8px 12px;
   height: 64px;
   width:100%;
+}
+header>div {
+  display: flex;
+  align-items: center;
 }
 
 .icon {
@@ -48,22 +52,12 @@ header {
   padding: 12px;
 }
 
-h1 {
-  margin: 0;
-  padding-left: 20px;
-  padding-right: 20px;
-  font-size: 1.25rem;
-  line-height: 2rem;
-  letter-spacing: 0.4px;
-  font-family: "Roboto Mono", monospace;
-  font-weight: 500;
-  letter-spacing: 0.0125em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+.center {
+  display: flex;
+  justify-content:center;
 }
-
-.p-slider-horizontal {
-  width: 100px;
+.center {
+  display: flex;
+  justify-content:center;
 }
 </style>

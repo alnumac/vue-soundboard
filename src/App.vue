@@ -1,11 +1,10 @@
 <template>
-  <TheHeader />
   <SoundBoard />
 </template>
 
 <script>
 // import { ref } from 'vue'
-import TheHeader from '@/components/TheHeader.vue'
+// import TheHeader from '@/components/TheHeader.vue'
 import SoundBoard from '@/pages/SoundBoard.vue'
 
 //mdiHeadphones, mdiMusic, mdiMusicNote, mdiWaveform
@@ -13,7 +12,7 @@ import SoundBoard from '@/pages/SoundBoard.vue'
 export default {
   name: 'App',
   components: {
-    TheHeader,
+    // TheHeader,
     SoundBoard
   },
   setup() {
@@ -92,13 +91,23 @@ hr {
   margin-top: 2rem;
 }
 
-div.p-slider .p-slider-range {
+button.p-button, div.p-slider .p-slider-range {
+  background: var(--md-color-primary);
+}
+
+button.p-button:enabled:hover {
+  background: var(--md-color-primary);
+}
+
+button.p-button:enabled:active {
+  background: var(--md-color-primary);
+}
+
+button.p-button:enabled:focus {
   background: var(--md-color-primary);
 }
 
 div.p-slider .p-slider-handle {
-  height: 1.143rem;
-  width: 1.143rem;
   background: #ffffff;
   border: 2px solid var(--md-color-primary);
   border-radius: 50%;
