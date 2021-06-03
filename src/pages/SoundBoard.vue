@@ -3,6 +3,13 @@
     <template #title>
       <EditableText v-model="title"/>
     </template>
+    <template #center>
+      <Slider v-model="globalVolume" :min="0" :max="100" :step="1" />
+    </template>
+    <template #right>
+      <Button type="button" label="Add" icon="pi pi-plus" @click="toggleAddMenu" />
+      <Menu ref="addMenuElement" :model="addMenuItems" :popup="true" />
+    </template>
   </TheHeader>
   <main>
     <div class="md-color-surface md-elevation-card add">
@@ -19,8 +26,14 @@
 <script>
 import { ref, reactive, watch, toRefs, onMounted, toRaw } from 'vue'
 import { debounce } from 'lodash';
+
 import TheHeader from '@/components/TheHeader.vue'
 import EditableText from '@/components/EditableText.vue'
+import Button from 'primevue/button';
+import Menu from 'primevue/menu';
+import Slider from 'primevue/slider';
+import { Howler } from 'howler';
+
 import BoardEntry from '@/components/BoardEntry.vue'
 import SoundUpload from '@/components/SoundUpload.vue'
 import draggable from 'vuedraggable'
@@ -31,6 +44,9 @@ export default {
   components: {
     TheHeader,
     EditableText,
+    Slider,
+    Button,
+    Menu,
     BoardEntry,
     SoundUpload,
     draggable
@@ -45,6 +61,39 @@ export default {
 
   setup(props) {
     const { id } = toRefs(props)
+    const globalVolume = ref(Howler.volume() * 100)
+    watch(globalVolume, (newValue, oldValue) => {
+      Howler.volume(newValue * 0.01)
+    })
+    const addMenuElement = ref(null)
+    const addMenuItems = reactive([
+      {
+        label: 'Audio',
+        items: [{
+            label: 'Upload',
+            icon: 'pi pi-upload',
+            command: () => {
+            }
+          },
+          {
+            label: 'From library',
+            icon: 'pi pi-book',
+            command: () => {
+            }
+          }
+        ]
+      },
+      {
+        label: 'Separator',
+        items: [{
+            label: 'Create',
+            icon: 'pi pi-plus',
+            command: () => {
+            }
+          }
+        ]
+      },
+    ])
 
     const title = ref('Default')
     let entries = reactive([])
@@ -77,7 +126,15 @@ export default {
       entries.splice(index, 1)
     }
 
+    function toggleAddMenu(event) {
+      addMenuElement.value.toggle(event);
+    }
+
     return {
+      globalVolume,
+      addMenuElement,
+      addMenuItems,
+      toggleAddMenu,
       title,
       entries,
       addSound,
@@ -92,6 +149,10 @@ main {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(12, 1fr);
+}
+
+.p-slider-horizontal {
+  width: 100px;
 }
 
 .add {
