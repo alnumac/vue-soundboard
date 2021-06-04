@@ -21,14 +21,21 @@
         <SvgIcon type="mdi" :size="24" :path="loop ? mdiRepeat : mdiRepeatOff" />
       </div>
       <div class="icon more">
-        <SoundMore @remove="remove"/>
+        <Button
+          type="button"
+          icon="pi pi-ellipsis-v"
+          class="p-button-rounded p-button-text p-button-plain"
+          @click.stop="toggleMoreMenu"
+        />
+        <Menu ref="moreMenuElement" :model="moreMenuItems" :popup="true" />
+        <!-- <SoundMore @remove="remove"/> -->
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import LoadSpinner from '@/components/LoadSpinner.vue'
 import db from '@/db'
 import { debounce } from 'lodash';
@@ -36,6 +43,9 @@ import { debounce } from 'lodash';
 import { Howl } from 'howler';
 import SvgIcon from '@jamescoyle/vue-icon'
 import { mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical } from '@mdi/js'
+
+import Button from 'primevue/button';
+import Menu from 'primevue/menu';
 
 import SoundVolume from '@/components/SoundVolume'
 import SoundMore from '@/components/SoundMore'
@@ -48,7 +58,9 @@ export default {
     SvgIcon,
     LoadSpinner,
     SoundVolume,
-    SoundMore
+    SoundMore,
+    Button,
+    Menu
   },
   emits: ['remove'],
 
@@ -153,6 +165,22 @@ export default {
         howl.unload()
       context.emit('remove')
     }
+    const moreMenuElement = ref(null)
+    function toggleMoreMenu(event) {
+      moreMenuElement.value.toggle(event);
+    }
+    const moreMenuItems = reactive([
+      {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        command: () => {}
+      },
+      {
+        label: 'Remove',
+        icon: 'pi pi-times',
+        command: () => context.emit('remove')
+      },
+    ])
 
     onMounted(loadEntry)
 
@@ -165,7 +193,10 @@ export default {
       togglePlay,
       toggleLoop,
       remove,
-      mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical
+      mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical,
+      moreMenuElement,
+      toggleMoreMenu,
+      moreMenuItems,
     }
   }
 

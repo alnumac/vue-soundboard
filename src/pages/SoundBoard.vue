@@ -19,7 +19,7 @@
             <SoundPlayer
               :id="element.value"
               class="soundplayer"
-              @remove="removeEntry(index)"/>
+              @remove="removeEntry(index, entries)"/>
           </template>
         </draggable>
       </section>
@@ -42,7 +42,7 @@
             <SoundPlayer
               :id="element.value"
               class="soundplayer"
-              @remove="removeEntry(index)"/>
+              @remove="removeEntry(index, section.entries)" />
           </template>
         </draggable>
       </section>

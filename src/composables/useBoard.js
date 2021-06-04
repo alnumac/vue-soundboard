@@ -88,7 +88,7 @@ export default function useBoard(boardId) {
     entries.unshift(prepareEntry({value}))
   }
 
-  function removeEntry(index) {
+  function removeEntry(index, entries) {
     entries.splice(index, 1)
   }
 
