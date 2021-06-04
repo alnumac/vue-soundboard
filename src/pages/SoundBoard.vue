@@ -13,33 +13,40 @@
     </template>
   </TheHeader>
   <main>
-    <section>
-      <draggable :list="entries" itemKey="id" group="audioBoard" :animation="500" class="grid" >
-        <template #item="{element}">
-          <SoundPlayer
-            :id="element.value"
-            class="soundplayer"
-            v-if="element.type === 'audio'"
-            @remove="removeEntry(element)"/>
-        </template>
-      </draggable>
-    </section>
-    <section v-for="section in sections" :key="section.id">
-      <BoardSeparator class="separator" @remove="removeSection(section)">
-        <template #title>
-          <EditableText v-model="section.title" />
-        </template>
-      </BoardSeparator>
-      <draggable :list="section.entries" itemKey="id" group="audioBoard" :animation="300" class="grid" >
-        <template #item="{element}">
-          <SoundPlayer
-            :id="element.value"
-            class="soundplayer"
-            v-if="element.type === 'audio'"
-            @remove="removeEntry(element)"/>
-        </template>
-      </draggable>
-    </section>
+      <section>
+        <draggable :list="entries" itemKey="id" group="audioBoard" :animation="500" class="grid" >
+          <template #item="{element, index}">
+            <SoundPlayer
+              :id="element.value"
+              class="soundplayer"
+              @remove="removeEntry(index)"/>
+          </template>
+        </draggable>
+      </section>
+    <transition-group name="sections">
+      <section v-for="(section, index) in sections" :key="section.id">
+        <BoardSeparator
+          class="separator"
+          :isFirst="index <= 0"
+          :isLast="index >= (sections.length - 1)"
+          @moveUp="moveSectionUp(index)"
+          @moveDown="moveSectionDown(index)"
+          @remove="removeSection(index)"
+        >
+          <template #title>
+            <EditableText v-model="section.title" />
+          </template>
+        </BoardSeparator>
+        <draggable :list="section.entries" itemKey="id" group="audioBoard" :animation="300" class="grid" >
+          <template #item="{element, index}">
+            <SoundPlayer
+              :id="element.value"
+              class="soundplayer"
+              @remove="removeEntry(index)"/>
+          </template>
+        </draggable>
+      </section>
+    </transition-group>
   </main>
 </template>
 
@@ -81,13 +88,13 @@ export default {
   },
 
   setup(props) {
-    const { title, entries, sections, addSection, removeSection, addEntry, addAudioEntry, addSeparatorEntry, removeEntry } = useBoard(props.id)
+    const { title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry } = useBoard(props.id)
     const { globalVolume, stopAll } = useGlobalAudioControls()
-    const { uploadElement, showUploadPrompt, onFileUpload } = useAudioUpload({addToBoard: addAudioEntry})
+    const { uploadElement, showUploadPrompt, onFileUpload } = useAudioUpload({addToBoard: addEntry})
     const { addMenuElement, toggleAddMenu, addMenuItems } = useAddBoardEntryMenu({onUpload: showUploadPrompt, onSeparator: addSection})
 
     return {
-      title, entries, sections, addSection, removeSection, addEntry, addAudioEntry, addSeparatorEntry, removeEntry,
+      title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry,
       uploadElement, showUploadPrompt, onFileUpload,
       globalVolume, stopAll,
       addMenuElement, toggleAddMenu, addMenuItems,
@@ -97,6 +104,21 @@ export default {
 </script>
 
 <style scoped>
+.sections-enter-active,
+.sections-leave-active {
+  transition: transform 0.8s ease, opacity 0.8s ease;
+}
+
+.sections-enter-from,
+.sections-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.sections-move {
+  transition: transform 0.8s ease;
+}
+
 .grid {
   display: grid;
   gap: 1rem;

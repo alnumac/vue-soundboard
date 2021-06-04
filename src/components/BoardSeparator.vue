@@ -6,10 +6,12 @@
       <Button
         icon="pi pi-arrow-up" 
         class="p-button-rounded p-button-text p-button-plain"
+        :disabled="isFirst"
         @click="moveUp"/>
       <Button
         icon="pi pi-arrow-down"
         class="p-button-rounded p-button-text p-button-plain"
+        :disabled="isLast"
         @click="moveDown" />
       <Button
         icon="pi pi-times"
@@ -31,6 +33,8 @@ export default {
     Button
   },
   props: {
+    isFirst: Boolean,
+    isLast: Boolean
   },
   emits: [
     'moveUp',

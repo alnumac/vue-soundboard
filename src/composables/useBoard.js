@@ -4,10 +4,6 @@ import { debounce } from 'lodash';
 
 import db from '@/db'
 
-const TYPES = {
-  AUDIO: 'audio'
-}
-
 export default function useBoard(boardId) {
   const id = ref(boardId)
   const title = ref('Default')
@@ -53,10 +49,22 @@ export default function useBoard(boardId) {
     sections.push(prepareSection(params))
   }
 
-  function removeSection(section) {
-    const index = sections.indexOf(section)
+  function removeSection(index) {
+    const section = sections.splice(index, 1)
     entries.push(...loadEntries(section.entries))
-    sections.splice(index, 1)
+  }
+
+  function moveSection(from, to) {
+    const section = sections.splice(from, 1)[0]
+    sections.splice(to, 0, section)
+  }
+
+  function moveSectionUp(index) {
+    moveSection(index, index - 1)
+  }
+
+  function moveSectionDown(index) {
+    moveSection(index, index + 1)
   }
 
   function loadEntries(entries_in_db) {
@@ -69,28 +77,18 @@ export default function useBoard(boardId) {
     return loaded_entries
   }
 
-  function prepareEntry({id = uuidv4(), type = TYPES.AUDIO, value}) {
+  function prepareEntry({id = uuidv4(), value}) {
     return {
       id: id,
-      type: type,
       value: value
     }
   }
 
-  function addEntry(value, type) {
-    entries.unshift(prepareEntry({value, type}))
+  function addEntry(value) {
+    entries.unshift(prepareEntry({value}))
   }
 
-  function addAudioEntry(value) {
-    entries.unshift(prepareEntry({value, type: 'audio'}))
-  }
-
-  function addSeparatorEntry(value = 'New section') {
-    entries.push(prepareEntry({value, type: 'separator'}))
-  }
-
-  function removeEntry(entry) {
-    const index = entries.indexOf(entry)
+  function removeEntry(index) {
     entries.splice(index, 1)
   }
 
@@ -103,9 +101,9 @@ export default function useBoard(boardId) {
     sections,
     addSection,
     removeSection,
+    moveSectionUp,
+    moveSectionDown,
     addEntry,
-    addAudioEntry,
-    addSeparatorEntry,
     removeEntry
   }
 }
