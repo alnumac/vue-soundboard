@@ -13,30 +13,59 @@
     </template>
   </TheHeader>
   <main>
-    <draggable :list="entries" tag="transition-group" :component-data="{name:'list'}" :itemKey="(element) => element">
-      <template #item="{element, index}">
-          <BoardEntry class="" :id="element" @remove="removeEntry(index)" />
-      </template>
-    </draggable>
+      <section>
+        <draggable :list="entries" itemKey="id" group="audioBoard" :animation="500" class="grid" >
+          <template #item="{element, index}">
+            <SoundPlayer
+              :id="element.value"
+              class="soundplayer"
+              @remove="removeEntry(index, entries)"/>
+          </template>
+        </draggable>
+      </section>
+    <transition-group name="sections">
+      <section v-for="(section, index) in sections" :key="section.id">
+        <BoardSeparator
+          class="separator"
+          :isFirst="index <= 0"
+          :isLast="index >= (sections.length - 1)"
+          @moveUp="moveSectionUp(index)"
+          @moveDown="moveSectionDown(index)"
+          @remove="removeSection(index)"
+        >
+          <template #title>
+            <EditableText v-model="section.title" />
+          </template>
+        </BoardSeparator>
+        <draggable :list="section.entries" itemKey="id" group="audioBoard" :animation="300" class="grid" >
+          <template #item="{element, index}">
+            <SoundPlayer
+              :id="element.value"
+              class="soundplayer"
+              @remove="removeEntry(index, section.entries)" />
+          </template>
+        </draggable>
+      </section>
+    </transition-group>
   </main>
 </template>
 
 <script>
-import { ref, reactive, watch, toRefs, onMounted, toRaw } from 'vue'
-import { debounce } from 'lodash';
 
 import TheHeader from '@/components/TheHeader.vue'
 import EditableText from '@/components/EditableText.vue'
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
 import Slider from 'primevue/slider';
-import { Howler } from 'howler';
-
-import BoardEntry from '@/components/BoardEntry.vue'
+import SoundPlayer from '@/components/SoundPlayer.vue'
+import BoardSeparator from '@/components/BoardSeparator.vue'
 import draggable from 'vuedraggable'
-import db from '@/db'
 
-import useSoundUpload from '@/composables/useSoundUpload'
+import useBoard from '@/composables/useBoard'
+import useGlobalAudioControls from '@/composables/useGlobalAudioControls'
+import useAudioUpload from '@/composables/useAudioUpload'
+import useAddBoardEntryMenu from '@/composables/useAddBoardEntryMenu'
+
 
 export default {
   name: 'SoundBoard',
@@ -46,8 +75,9 @@ export default {
     Slider,
     Button,
     Menu,
-    BoardEntry,
-    draggable
+    draggable,
+    SoundPlayer,
+    BoardSeparator
   },
 
   props: {
@@ -58,99 +88,50 @@ export default {
   },
 
   setup(props) {
-    const { id } = toRefs(props)
-    let entries = reactive([])
-    const { uploadElement, showUploadPrompt, onFileUpload } = useSoundUpload(entries)
-    const globalVolume = ref(Howler.volume() * 100)
-    watch(globalVolume, (newValue, oldValue) => {
-      Howler.volume(newValue * 0.01)
-    })
-    const addMenuElement = ref(null)
-    const addMenuItems = reactive([
-      {
-        label: 'Audio',
-        items: [{
-            label: 'Upload',
-            icon: 'pi pi-upload',
-            command: () => {
-              showUploadPrompt()
-            }
-          },
-          {
-            label: 'From library',
-            icon: 'pi pi-book',
-            command: () => {
-            }
-          }
-        ]
-      },
-      {
-        label: 'Separator',
-        items: [{
-            label: 'Create',
-            icon: 'pi pi-plus',
-            command: () => {
-            }
-          }
-        ]
-      },
-    ])
-
-    const title = ref('Default')
-    
-
-    async function loadBoard() {
-      const loaded_board = await db.boards.getItem(id.value)
-      if (loaded_board !== null) {
-        title.value = loaded_board.title
-        entries.push(...loaded_board.entries)
-      }
-    }
-
-    async function saveBoard() {
-      const new_board = {
-        title: title.value,
-        entries: toRaw(entries)
-      }
-      await db.boards.setItem(id.value, new_board)
-    }
-    const debouncedSaveBoard = debounce(saveBoard, 300)
-
-    onMounted(loadBoard)
-    watch([title, entries], debouncedSaveBoard, { deep: true })
-
-    function addSound(soundId) {
-      entries.unshift(soundId)
-    }
-
-    function removeEntry(index) {
-      entries.splice(index, 1)
-    }
-
-    function toggleAddMenu(event) {
-      addMenuElement.value.toggle(event);
-    }
+    const { title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry } = useBoard(props.id)
+    const { globalVolume, stopAll } = useGlobalAudioControls()
+    const { uploadElement, showUploadPrompt, onFileUpload } = useAudioUpload({addToBoard: addEntry})
+    const { addMenuElement, toggleAddMenu, addMenuItems } = useAddBoardEntryMenu({onUpload: showUploadPrompt, onSeparator: addSection})
 
     return {
+      title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry,
       uploadElement, showUploadPrompt, onFileUpload,
-      globalVolume,
-      addMenuElement,
-      addMenuItems,
-      toggleAddMenu,
-      title,
-      entries,
-      addSound,
-      removeEntry
+      globalVolume, stopAll,
+      addMenuElement, toggleAddMenu, addMenuItems,
     }
   }
 }
 </script>
 
 <style scoped>
-main {
+.sections-enter-active,
+.sections-leave-active {
+  transition: transform 0.8s ease, opacity 0.8s ease;
+}
+
+.sections-enter-from,
+.sections-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.sections-move {
+  transition: transform 0.8s ease;
+}
+
+.grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: [row-start] repeat(12, 1fr) [row-end];
+}
+
+.soundplayer {
+  grid-column-end: span 2;
+}
+
+.separator {
+  grid-column-start: row-start;
+  grid-column-end: row-end;
 }
 
 .hidden {
