@@ -69,6 +69,7 @@ hr {
   align-items: center;
   justify-content: space-between;
   border-bottom: solid 1px;
+  margin-bottom: 1rem;
 }
 .actions {
   opacity: 0;

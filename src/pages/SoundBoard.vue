@@ -12,9 +12,6 @@
       <input class="hidden" ref="uploadElement" type="file" @change="onFileUpload" accept="audio/*">
     </template>
   </TheHeader>
-  <div v-for="(value, key) in loadedSounds" :key="key">
-    {{ key }}
-  </div>
   <main>
       <section>
         <draggable :list="entries" itemKey="id" group="audioBoard" :animation="300" class="grid" >
@@ -140,6 +137,19 @@ export default {
   display: grid;
   gap: 1rem;
   grid-template-columns: [row-start] repeat(12, 1fr) [row-end];
+}
+ 
+div.grid:empty {
+  text-align:center;
+}
+
+div.grid:empty::before {
+  grid-column-start: row-start;
+  grid-column-end: row-end;
+  color: hsla(0, 100%, 100%, 59%);
+  font-size: 1.5rem;
+
+  content: 'Empty';
 }
 
 .soundplayer {
