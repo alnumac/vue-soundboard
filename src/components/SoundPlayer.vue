@@ -1,13 +1,13 @@
 <template>
   <div class="container md-color-surface md-elevation-card"
     :class="{
-      playing: isPlaying,
-      loading: isLoading
+      playing: playing,
+      loading: loading
     }"
     @click="togglePlay">
     <div class="icon primary">
-      <LoadSpinner v-if="isLoading"/>
-      <SvgIcon v-if="!isLoading" type="mdi" :size="36" :path="mdiVolumeHigh" />
+      <LoadSpinner v-if="loading"/>
+      <SvgIcon v-if="!loading" type="mdi" :size="36" :path="icon" />
     </div>
     <div class="title">
       {{ title }}
@@ -15,10 +15,10 @@
     <div class="actions">
       <div class="icon volume">
         <!-- <SvgIcon type="mdi" :size="24" :path="mdiVolumeHigh" /> -->
-        <SoundVolume v-model="volume" />
+        <SoundPlayerVolume v-model="localVolume" />
       </div>
       <div class="icon loop" @click.stop="toggleLoop">
-        <SvgIcon type="mdi" :size="24" :path="loop ? mdiRepeat : mdiRepeatOff" />
+        <SvgIcon type="mdi" :size="24" :path="looping ? mdiRepeat : mdiRepeatOff" />
       </div>
       <div class="icon more">
         <Button
@@ -28,14 +28,23 @@
           @click.stop="toggleMoreMenu"
         />
         <Menu ref="moreMenuElement" :model="moreMenuItems" :popup="true" />
-        <!-- <SoundMore @remove="remove"/> -->
+        <Dialog v-model:visible="displayEdit" :modal="true" :dismissableMask="true">
+          <template #header>
+            <h3>Edit</h3>
+          </template>
+          <EditableText v-model="tempEditTitle" />
+          <template #footer>
+            <Button label="Save" icon="pi pi-check" class="" autofocus @click="saveEdit" />
+            <Button label="Cancel" icon="pi pi-times" class="p-button-text p-button-plain" @click="hideEdit" />
+          </template>
+        </Dialog>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onBeforeMount } from 'vue'
 import LoadSpinner from '@/components/LoadSpinner.vue'
 import db from '@/db'
 import { debounce } from 'lodash';
@@ -46,95 +55,130 @@ import { mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical } from '@mdi/js
 
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
+import Dialog from 'primevue/dialog';
 
-import SoundVolume from '@/components/SoundVolume'
-import SoundMore from '@/components/SoundMore'
+import SoundPlayerVolume from '@/components/SoundPlayerVolume'
+// import SoundPlayerMore from '@/components/SoundPlayerMore'
+import EditableText from '@/components/EditableText.vue'
 
 export default {
   props: {
-    id: String
+    id: String,
+    volume: {
+      type: Number,
+      required: true,
+      default: () => 1.0
+    },
+    loadedSounds: {
+      type: Object,
+      required: true,
+      default: () => ({})
+    }
   },
   components: {
     SvgIcon,
     LoadSpinner,
-    SoundVolume,
-    SoundMore,
+    SoundPlayerVolume,
+    // SoundPlayerMore,
     Button,
-    Menu
+    Menu,
+    Dialog,
+    EditableText
   },
-  emits: ['remove'],
+  emits: [
+    'update:volume',
+    'remove',
+    'load'
+  ],
 
   setup(props, context) {
-
-    const title = ref('test')
+    const title = ref('untitled')
     const extension = ref('mp3')
+    const icon = ref(mdiVolumeHigh)
 
-    const volume = ref(1)
-    watch(volume, (newValue, oldValue) => {
-      if (howl)
-        howl.volume(newValue)
-      debouncedSaveEntry()
+    const localVolume = ref(props.volume)
+    const looping = ref(false)
+
+    const howl = ref(null)
+
+    const state = reactive({
+      howl,
+      title,
+      extension,
+      icon
     })
 
-    const loop = ref(false)
-    watch(loop, (newValue, oldValue) => {
-      if (howl)
-        howl.loop(newValue)
-      debouncedSaveEntry()
+    watch(howl, () => context.emit('load', { soundId: props.id, state }))
+
+    const playing = computed( () => {
+      return (howl.value === null) ? false : howl.value.playing()
     })
 
-    let howl = null
-    const isLoading = ref(false)
-    const isPlaying = ref(false)
-
-    const togglePlay = computed(() => {
-      if (isLoading.value) return nothing
-      if (isPlaying.value) return stop
-      else return play
+    const loading = computed( () => {
+      return (howl.value === null) ? false : (howl.value.state() === 'loading' && !playing.value)
     })
+
+    if (props.id in props.loadedSounds) {
+      const loaded_state = reactive(props.loadedSounds[props.id])
+      howl.value = loaded_state.howl
+      title.value = loaded_state.title
+      icon.value = loaded_state.icon
+      looping.value = howl.value.loop()
+      localVolume.value = howl.value.volume()
+    }
 
     function toggleLoop() {
-      loop.value = !loop.value
-      if (howl) howl.loop()
+      looping.value = !looping.value
+      if (howl.value) howl.value.loop()
     }
 
     async function loadEntry() {
       const loaded_entry = await db.entries.getItem(props.id)
       if (loaded_entry !== null) {
-        title.value = loaded_entry.title
-        volume.value = loaded_entry.volume
-        loop.value = loaded_entry.value
-        extension.value = loaded_entry.extension || 'mp3'
+        title.value = loaded_entry.title || title.value
+        looping.value = loaded_entry.looping || looping.value
+        extension.value = loaded_entry.extension || extension.value
+        icon.value = loaded_entry.icon || icon.value
       }
     }
 
     async function saveEntry() {
+      // console.log('saving entry: ' + title.value)
       const new_entry = {
         title: title.value,
-        volume: volume.value,
-        loop: loop.value,
-        extension: extension.value
+        looping: looping.value,
+        extension: extension.value,
+        icon: icon.value,
       }
       await db.entries.setItem(props.id, new_entry)
     }
 
-    const debouncedSaveEntry = debounce(saveEntry, 300)
+    async function togglePlay() {
+      if (loading.value)
+        return
 
-    async function nothing() {
-    }
-
-    async function stop() {
-      howl.stop()
+      if (howl.value === null)
+        await loadFileAndCreateHowl(props.id)
+      
+      if (!howl.value.playing()) {
+        await play()
+      } else {
+        await stop()
+      }
     }
 
     async function play() {
-      if (howl === null) {
-        isLoading.value = true
-        const src = await loadFileAsURL(props.id)
-        howl = await createHowl(src)
-        isLoading.value = false
-      }
-      howl.play()
+      howl.value.play()
+    }
+
+    async function stop() {
+      howl.value.stop()
+    }
+
+    async function loadFileAndCreateHowl(soundId) {
+      const src = await loadFileAsURL(soundId)
+      await createHowl(src)
+      revokeFileAsURL(src)
     }
 
     async function loadFileAsURL(id) {
@@ -144,36 +188,55 @@ export default {
       }
     }
 
+    function revokeFileAsURL(loaded_file) {
+      URL.revokeObjectURL(loaded_file)
+    }
+
     function createHowl(src) {
       return new Promise(
         (resolve) => {
-          const howl = new Howl({
+          howl.value = new Howl({
             src,
             format: extension.value,
-            volume: volume.value,
-            loop: loop.value,
-            onload: () => resolve(howl),
-            onplay: () => isPlaying.value = true,
-            onend: () => isPlaying.value = false,
-            onstop: () => isPlaying.value = false
+            volume: localVolume.value,
+            looping: looping.value,
+            onload: () => resolve()
           })
         })
     }
 
     function remove() {
-      if (howl)
-        howl.unload()
+      if (howl.value)
+        howl.value.unload()
       context.emit('remove')
     }
+
     const moreMenuElement = ref(null)
     function toggleMoreMenu(event) {
       moreMenuElement.value.toggle(event);
     }
+
+    const displayEdit = ref(false)
+    //const tempEditIcon = ref(localTitle.value)
+    const tempEditTitle = ref(title.value)
+    function showEdit() {
+      tempEditTitle.value = title.value
+      displayEdit.value = true
+    }
+    function hideEdit() {
+      displayEdit.value = false
+    }
+    function saveEdit() {
+      title.value = tempEditTitle.value
+      hideEdit()
+    }
+    
+
     const moreMenuItems = reactive([
       {
         label: 'Edit',
         icon: 'pi pi-pencil',
-        command: () => {}
+        command: () => showEdit()
       },
       {
         label: 'Remove',
@@ -182,19 +245,32 @@ export default {
       },
     ])
 
-    onMounted(loadEntry)
+    onBeforeMount(loadEntry)
+    
+    watch([title, icon], () => debounce(saveEntry, 300))
+    watch(localVolume, (newValue) => {
+      if (howl.value !== null)
+        howl.value.volume(newValue)
+      context.emit('update:volume', newValue)
+    })
 
     return {
       title,
-      volume,
-      loop,
-      isPlaying,
-      isLoading,
+      icon,
+      localVolume,
+      looping,
+      playing,
+      loading,
       togglePlay,
       toggleLoop,
       remove,
       mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical,
       moreMenuElement,
+      displayEdit,
+      tempEditTitle,
+      showEdit,
+      saveEdit,
+      hideEdit,
       toggleMoreMenu,
       moreMenuItems,
     }
@@ -213,9 +289,6 @@ export default {
   align-items: center;
   padding: 12px 6px 0px 6px;
   border: solid 2px hsla(270, 96%, 79%, 0%);
-}
-
-.container.loading {
 }
 
 .container.playing {

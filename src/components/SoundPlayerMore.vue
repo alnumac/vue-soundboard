@@ -18,7 +18,7 @@
 
 <script>
 //ref, reactive, toRefs, computed, watch, onMounted, onUpdated, onUnmounted
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 
 import SvgIcon from '@jamescoyle/vue-icon'
 import { mdiDotsVertical } from '@mdi/js'
@@ -33,7 +33,7 @@ export default {
   setup(props, context) {
 
     const volume = ref(props.modelValue * 100)
-    watch(volume, (newValue, oldValue) => context.emit('update:modelValue', newValue * 0.01))
+    watch(volume, (newValue) => context.emit('update:modelValue', newValue * 0.01))
 
     const active = ref(false)
     function setActive() {

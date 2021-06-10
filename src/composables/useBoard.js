@@ -1,4 +1,4 @@
-import { ref, reactive, computed, watch, onMounted, toRaw } from 'vue'
+import { ref, reactive, watch, onMounted, toRaw } from 'vue'
 import { v4 as uuidv4 } from 'uuid';
 import { debounce } from 'lodash';
 
@@ -27,7 +27,6 @@ export default function useBoard(boardId) {
     }
     await db.boards.setItem(id.value, new_board)
   }
-  const debouncedSaveBoard = debounce(saveBoard, 300)
 
   function loadSections(sections_in_db) {
     const loaded_sections = []
@@ -77,10 +76,11 @@ export default function useBoard(boardId) {
     return loaded_entries
   }
 
-  function prepareEntry({id = uuidv4(), value}) {
+  function prepareEntry({id = uuidv4(), value, volume = 1.0}) {
     return {
-      id: id,
-      value: value
+      id,
+      value,
+      volume
     }
   }
 
@@ -93,7 +93,7 @@ export default function useBoard(boardId) {
   }
 
   onMounted(loadBoard)
-  watch([title, entries, sections], debouncedSaveBoard, { deep: true })
+  watch([title, entries, sections], debounce(saveBoard, 500), { deep: true })
 
   return {
     title,

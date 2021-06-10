@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import sha1 from 'js-sha1'
-import { v4 as uuidv4 } from 'uuid';
+import { mdiVolumeHigh } from '@mdi/js'
 import db from '@/db'
 
 export default function useAudioUpload({
@@ -36,7 +36,7 @@ export default function useAudioUpload({
       const { fileName, extension } = splitFileNameAndExtension(file.name)
       const soundTitle = prettyName(fileName)
       await db.entries.setItem(id, {
-        icon: 'default',
+        icon: mdiVolumeHigh,
         title: soundTitle,
         extension: extension,
         repeat: true,

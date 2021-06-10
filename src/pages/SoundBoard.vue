@@ -14,12 +14,16 @@
   </TheHeader>
   <main>
       <section>
-        <draggable :list="entries" itemKey="id" group="audioBoard" :animation="500" class="grid" >
+        <draggable :list="entries" itemKey="id" group="audioBoard" :animation="300" class="grid" >
           <template #item="{element, index}">
             <SoundPlayer
               :id="element.value"
+              v-model:volume="element.volume"
               class="soundplayer"
-              @remove="removeEntry(index, entries)"/>
+              @remove="removeEntry(index, entries)"
+              :loadedSounds="loadedSounds"
+              @load="onSoundLoad"
+            />
           </template>
         </draggable>
       </section>
@@ -41,8 +45,12 @@
           <template #item="{element, index}">
             <SoundPlayer
               :id="element.value"
+              v-model:volume="element.volume"
               class="soundplayer"
-              @remove="removeEntry(index, section.entries)" />
+              @remove="removeEntry(index, section.entries)"
+              :loadedSounds="loadedSounds"
+              @load="onSoundLoad"
+            />
           </template>
         </draggable>
       </section>
@@ -51,7 +59,7 @@
 </template>
 
 <script>
-
+import { reactive } from 'vue'
 import TheHeader from '@/components/TheHeader.vue'
 import EditableText from '@/components/EditableText.vue'
 import Button from 'primevue/button';
@@ -93,11 +101,17 @@ export default {
     const { uploadElement, showUploadPrompt, onFileUpload } = useAudioUpload({addToBoard: addEntry})
     const { addMenuElement, toggleAddMenu, addMenuItems } = useAddBoardEntryMenu({onUpload: showUploadPrompt, onSeparator: addSection})
 
+    const loadedSounds = reactive({})
+    function onSoundLoad({ soundId, state }) {
+      loadedSounds[soundId] = state
+    }
+
     return {
       title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry,
       uploadElement, showUploadPrompt, onFileUpload,
       globalVolume, stopAll,
       addMenuElement, toggleAddMenu, addMenuItems,
+      loadedSounds, onSoundLoad
     }
   }
 }
@@ -123,6 +137,19 @@ export default {
   display: grid;
   gap: 1rem;
   grid-template-columns: [row-start] repeat(12, 1fr) [row-end];
+}
+ 
+div.grid:empty {
+  text-align:center;
+}
+
+div.grid:empty::before {
+  grid-column-start: row-start;
+  grid-column-end: row-end;
+  color: hsla(0, 100%, 100%, 59%);
+  font-size: 1.5rem;
+
+  content: 'Empty';
 }
 
 .soundplayer {
