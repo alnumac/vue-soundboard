@@ -7,7 +7,7 @@
     @click="togglePlay">
     <div class="icon primary">
       <LoadSpinner v-if="loading"/>
-      <SvgIcon v-if="!loading" type="mdi" :size="36" :path="mdiVolumeHigh" />
+      <SvgIcon v-if="!loading" type="mdi" :size="36" :path="icon" />
     </div>
     <div class="title">
       {{ title }}
@@ -58,7 +58,7 @@ import Menu from 'primevue/menu';
 import Dialog from 'primevue/dialog';
 
 import SoundPlayerVolume from '@/components/SoundPlayerVolume'
-import SoundPlayerMore from '@/components/SoundPlayerMore'
+// import SoundPlayerMore from '@/components/SoundPlayerMore'
 import EditableText from '@/components/EditableText.vue'
 
 export default {
@@ -79,7 +79,7 @@ export default {
     SvgIcon,
     LoadSpinner,
     SoundPlayerVolume,
-    SoundPlayerMore,
+    // SoundPlayerMore,
     Button,
     Menu,
     Dialog,
@@ -94,6 +94,7 @@ export default {
   setup(props, context) {
     const title = ref('untitled')
     const extension = ref('mp3')
+    const icon = ref(mdiVolumeHigh)
 
     const localVolume = ref(props.volume)
     const looping = ref(false)
@@ -103,7 +104,8 @@ export default {
     const state = reactive({
       howl,
       title,
-      extension
+      extension,
+      icon
     })
 
     watch(howl, () => context.emit('load', { soundId: props.id, state }))
@@ -120,6 +122,7 @@ export default {
       const loaded_state = reactive(props.loadedSounds[props.id])
       howl.value = loaded_state.howl
       title.value = loaded_state.title
+      icon.value = loaded_state.icon
       looping.value = howl.value.loop()
       localVolume.value = howl.value.volume()
     }
@@ -132,18 +135,20 @@ export default {
     async function loadEntry() {
       const loaded_entry = await db.entries.getItem(props.id)
       if (loaded_entry !== null) {
-        title.value = loaded_entry.title
-        looping.value = loaded_entry.looping
-        extension.value = loaded_entry.extension || 'mp3'
+        title.value = loaded_entry.title || title.value
+        looping.value = loaded_entry.looping || looping.value
+        extension.value = loaded_entry.extension || extension.value
+        icon.value = loaded_entry.icon || icon.value
       }
     }
 
     async function saveEntry() {
-      console.log('saving entry: ' + title.value)
+      // console.log('saving entry: ' + title.value)
       const new_entry = {
         title: title.value,
         looping: looping.value,
-        extension: extension.value
+        extension: extension.value,
+        icon: icon.value,
       }
       await db.entries.setItem(props.id, new_entry)
     }
@@ -242,7 +247,7 @@ export default {
 
     onBeforeMount(loadEntry)
     
-    watch([title], () => debounce(saveEntry, 300))
+    watch([title, icon], () => debounce(saveEntry, 300))
     watch(localVolume, (newValue) => {
       if (howl.value !== null)
         howl.value.volume(newValue)
@@ -251,6 +256,7 @@ export default {
 
     return {
       title,
+      icon,
       localVolume,
       looping,
       playing,

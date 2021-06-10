@@ -1,7 +1,7 @@
 <template>
   <hr>
   <div v-bind="$attrs" class="container">
-    <slot name="title">Test</slot>
+    <slot name="title"></slot>
     <div class="actions">
       <Button
         icon="pi pi-arrow-up" 
@@ -24,7 +24,7 @@
 
 <script>
 //ref, reactive, toRefs, computed, watch, onMounted, onUpdated, onUnmounted
-import { ref } from 'vue'
+//import { ref } from 'vue'
 
 import Button from 'primevue/button';
 

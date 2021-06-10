@@ -1,4 +1,4 @@
-import { ref, reactive, computed, watch, onMounted, toRaw } from 'vue'
+import { ref, reactive, watch, onMounted, toRaw } from 'vue'
 import { v4 as uuidv4 } from 'uuid';
 import { debounce } from 'lodash';
 
@@ -20,7 +20,6 @@ export default function useBoard(boardId) {
   }
 
   async function saveBoard() {
-    console.log('Saving board: ' + title.value)
     const new_board = {
       title: title.value,
       entries: toRaw(entries),
