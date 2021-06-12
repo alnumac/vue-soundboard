@@ -85,7 +85,7 @@ export default function useBoard(boardId) {
   }
 
   function addEntry(value) {
-    entries.unshift(prepareEntry({value}))
+    entries.push(prepareEntry({value}))
   }
 
   function removeEntry(index, entries) {

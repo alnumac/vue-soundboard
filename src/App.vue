@@ -26,10 +26,6 @@ export default {
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 @import 'style.css';
 
-:root {
-
-}
-
 body {
   margin: 0;
 }
@@ -43,12 +39,12 @@ body {
 main {
   scroll-padding-top: 64px;
   margin: 24px auto;
-  max-width: 1040px;
+  padding: 1rem;
+  max-width: 1072px;
 }
 
 section {
-  border-radius: 4px;
-  padding: 8px 16px 16px 16px;
+  padding: 9px 0px 16px 0px;
 }
 
 .ambience {
@@ -91,11 +87,11 @@ hr {
   margin-top: 2rem;
 }
 
-button.p-button, div.p-slider .p-slider-range {
+/*button.p-button, div.p-slider .p-slider-range {
   background: var(--md-color-primary);
-}
+}*/
 
-button.p-button:enabled:hover {
+/* button.p-button:enabled:hover {
   background: var(--md-color-primary);
 }
 
@@ -105,7 +101,7 @@ button.p-button:enabled:active {
 
 button.p-button:enabled:focus {
   background: var(--md-color-primary);
-}
+} */
 
 div.p-slider .p-slider-handle {
   background: #ffffff;

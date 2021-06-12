@@ -136,7 +136,8 @@ export default {
 .grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: [row-start] repeat(12, 1fr) [row-end];
+  grid-template-columns: [row-start] repeat(auto-fill, 160px) [row-end];
+  justify-content: center;
 }
  
 div.grid:empty {
@@ -150,10 +151,6 @@ div.grid:empty::before {
   font-size: 1.5rem;
 
   content: 'Empty';
-}
-
-.soundplayer {
-  grid-column-end: span 2;
 }
 
 .separator {

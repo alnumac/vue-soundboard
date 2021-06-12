@@ -30,11 +30,18 @@
         <Menu ref="moreMenuElement" :model="moreMenuItems" :popup="true" />
         <Dialog v-model:visible="displayEdit" :modal="true" :dismissableMask="true">
           <template #header>
-            <h3>Edit</h3>
+            <h3>Edit sound</h3>
           </template>
-          <EditableText v-model="tempEditTitle" />
+          <div class="edit-container">
+            <label>Icon</label>
+            <IconSelector v-model="tempEditIcon"/>
+            <label>Title</label>
+            <InputText type="text" v-model="tempEditTitle" required="true"/>
+            <!-- <label>Loop</label>
+            <InputSwitch v-model="looping" /> -->
+          </div>
           <template #footer>
-            <Button label="Save" icon="pi pi-check" class="" autofocus @click="saveEdit" />
+            <Button label="Save" icon="pi pi-check" class="" @click="saveEdit" />
             <Button label="Cancel" icon="pi pi-times" class="p-button-text p-button-plain" @click="hideEdit" />
           </template>
         </Dialog>
@@ -59,7 +66,10 @@ import Dialog from 'primevue/dialog';
 
 import SoundPlayerVolume from '@/components/SoundPlayerVolume'
 // import SoundPlayerMore from '@/components/SoundPlayerMore'
-import EditableText from '@/components/EditableText.vue'
+// import EditableText from '@/components/EditableText.vue'
+import InputText from 'primevue/inputtext';
+import IconSelector from '@/components/IconSelector'
+// import InputSwitch from 'primevue/inputswitch';
 
 export default {
   props: {
@@ -83,7 +93,10 @@ export default {
     Button,
     Menu,
     Dialog,
-    EditableText
+    InputText,
+    //InputSwitch,
+    //EditableText,
+    IconSelector
   },
   emits: [
     'update:volume',
@@ -143,7 +156,6 @@ export default {
     }
 
     async function saveEntry() {
-      // console.log('saving entry: ' + title.value)
       const new_entry = {
         title: title.value,
         looping: looping.value,
@@ -217,9 +229,10 @@ export default {
     }
 
     const displayEdit = ref(false)
-    //const tempEditIcon = ref(localTitle.value)
+    const tempEditIcon = ref(icon.value)
     const tempEditTitle = ref(title.value)
     function showEdit() {
+      tempEditIcon.value = icon.value
       tempEditTitle.value = title.value
       displayEdit.value = true
     }
@@ -227,6 +240,7 @@ export default {
       displayEdit.value = false
     }
     function saveEdit() {
+      icon.value = tempEditIcon.value
       title.value = tempEditTitle.value
       hideEdit()
     }
@@ -247,7 +261,11 @@ export default {
 
     onBeforeMount(loadEntry)
     
-    watch([title, icon], () => debounce(saveEntry, 300))
+    watch([title, icon, looping], debounce(saveEntry, 500))
+    watch(looping, (newValue) => {
+      if (howl.value !== null)
+        howl.value.loop(newValue)
+    })
     watch(localVolume, (newValue) => {
       if (howl.value !== null)
         howl.value.volume(newValue)
@@ -267,6 +285,7 @@ export default {
       mdiVolumeHigh, mdiRepeat, mdiRepeatOff, mdiDotsVertical,
       moreMenuElement,
       displayEdit,
+      tempEditIcon,
       tempEditTitle,
       showEdit,
       saveEdit,
@@ -342,5 +361,23 @@ export default {
 
 .actions > .icon.loop {
   padding: 12px;
+}
+
+h3 {
+  margin: 0;
+}
+
+.edit-container {
+  display: flex;
+  flex-direction: column;
+  align-items:flex-start;
+}
+
+.edit-container>label {
+  margin-top: 1.5rem;
+}
+
+.edit-container>label:first-child {
+  margin-top: 0;
 }
 </style>

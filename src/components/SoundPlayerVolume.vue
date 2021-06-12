@@ -35,7 +35,7 @@ export default {
   setup(props, context) {
 
     const volume = ref(props.modelValue * 100)
-    watch(volume, (newValue, oldValue) => context.emit('update:modelValue', newValue * 0.01))
+    watch(volume, (newValue) => context.emit('update:modelValue', newValue * 0.01))
     
     const volumeIcon = computed( () => {
       if (volume.value > 66) return mdiVolumeHigh
