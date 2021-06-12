@@ -20,6 +20,7 @@
     "primevue": "^3.5.0",
     "uuid": "^8.3.2",
     "vue": "^3.0.0",
+    "vue-router": "^4.0.8",
     "vuedraggable": "^4.0.1",
     "wavesurfer.js": "^5.0.1"
   },
