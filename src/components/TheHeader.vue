@@ -1,7 +1,11 @@
 <template>
   <header class="md-elevation-app-bar md-color-surface">
     <div class="left">
-      <div class="icon"><SvgIcon type="mdi" :size="24" :path="mdiPlayCircle"></SvgIcon></div>
+      <Button
+        icon="pi pi-bars"
+        class="p-button-rounded p-button-text p-button-plain"
+        @click="openSidebar"
+      />
       <slot name="title">App</slot>
     </div>
     <div class="center">
@@ -16,16 +20,21 @@
 
 <script>
 // import { ref, watch } from 'vue'
-import SvgIcon from '@jamescoyle/vue-icon'
-import { mdiPlayCircle } from '@mdi/js'
+import Button from 'primevue/button';
 
 export default {
   components: {
-    SvgIcon
+    Button
   },
-  setup() {
+  emits: [
+    'openSidebar'
+  ],
+  setup(props, context) {
+    function openSidebar() {
+      context.emit('openSidebar')
+    }
     return {
-      mdiPlayCircle
+      openSidebar
     }
   }
 }

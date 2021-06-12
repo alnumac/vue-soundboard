@@ -1,5 +1,5 @@
 <template>
-  <TheHeader>
+  <TheHeader @openSidebar="openSidebar">
     <template #title>
       <EditableText v-model="title"/>
     </template>
@@ -12,6 +12,9 @@
       <input class="hidden" ref="uploadElement" type="file" @change="onFileUpload" accept="audio/*">
     </template>
   </TheHeader>
+  <Sidebar v-model:visible="sidebarOpened">
+    Content
+  </Sidebar>
   <main>
       <section>
         <draggable :list="entries" itemKey="id" group="audioBoard" :animation="300" class="grid" >
@@ -59,12 +62,13 @@
 </template>
 
 <script>
-import { reactive } from 'vue'
+import { ref, reactive } from 'vue'
 import TheHeader from '@/components/TheHeader.vue'
 import EditableText from '@/components/EditableText.vue'
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
 import Slider from 'primevue/slider';
+import Sidebar from 'primevue/sidebar';
 import SoundPlayer from '@/components/SoundPlayer.vue'
 import BoardSeparator from '@/components/BoardSeparator.vue'
 import draggable from 'vuedraggable'
@@ -85,7 +89,8 @@ export default {
     Menu,
     draggable,
     SoundPlayer,
-    BoardSeparator
+    BoardSeparator,
+    Sidebar
   },
 
   props: {
@@ -106,12 +111,18 @@ export default {
       loadedSounds[soundId] = state
     }
 
+    const sidebarOpened = ref(false)
+    function openSidebar() {
+      sidebarOpened.value = true
+    }
+
     return {
       title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry,
       uploadElement, showUploadPrompt, onFileUpload,
       globalVolume, stopAll,
       addMenuElement, toggleAddMenu, addMenuItems,
-      loadedSounds, onSoundLoad
+      loadedSounds, onSoundLoad,
+      sidebarOpened, openSidebar
     }
   }
 }
