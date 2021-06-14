@@ -1,4 +1,4 @@
-import { ref, reactive, watch, onMounted, toRaw } from 'vue'
+import { ref, reactive, computed, watch, onMounted, toRaw } from 'vue'
 import { v4 as uuidv4 } from 'uuid';
 import { debounce } from 'lodash';
 
@@ -6,9 +6,22 @@ import db from '@/db'
 
 export default function useBoard(boardId) {
   const id = ref(boardId)
-  const title = ref('Default')
+  const title = ref('New board')
   const entries = reactive([])
   const sections = reactive([])
+
+  const largestId = ref(0)
+
+  async function addBoard() {
+    const new_id = largestId.value + 1
+    const new_board = {
+      title: 'New board',
+      entries: [],
+      sections: [],
+    }
+    await db.boards.setItem(new_id, new_board)
+    loadBoards()
+  }
 
   async function loadBoard() {
     const loaded_board = await db.boards.getItem(id.value)
@@ -19,6 +32,34 @@ export default function useBoard(boardId) {
     }
   }
 
+  const allBoards = reactive([])
+  const allBoardsAsItems = computed(() => {
+    const allBoardsItems =  allBoards.map(({title, id}) => {
+      return {
+        label: title,
+        to: '/' + id
+      }
+    })
+    allBoardsItems.push({
+      separator: true
+    }, {
+      label: 'Create board',
+      icon: 'pi pi-plus',
+      command: () => addBoard()
+    })
+    return allBoardsItems
+  })
+
+  async function loadBoards() {
+    await db.boards.iterate((value, key, iterationNumber) => {
+      value['id'] = key
+      allBoards[iterationNumber - 1] = value
+      const keyInt = parseInt(key)
+      if (keyInt > largestId.value)
+        largestId.value = keyInt
+    })
+  }
+
   async function saveBoard() {
     const new_board = {
       title: title.value,
@@ -26,6 +67,7 @@ export default function useBoard(boardId) {
       sections: toRaw(sections),
     }
     await db.boards.setItem(id.value, new_board)
+    loadBoards()
   }
 
   function loadSections(sections_in_db) {
@@ -93,6 +135,7 @@ export default function useBoard(boardId) {
   }
 
   onMounted(loadBoard)
+  onMounted(loadBoards)
   watch([title, entries, sections], debounce(saveBoard, 500), { deep: true })
 
   return {
@@ -104,6 +147,8 @@ export default function useBoard(boardId) {
     moveSectionUp,
     moveSectionDown,
     addEntry,
-    removeEntry
+    removeEntry,
+    allBoards,
+    allBoardsAsItems
   }
 }

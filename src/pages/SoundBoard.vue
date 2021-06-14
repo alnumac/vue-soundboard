@@ -3,18 +3,15 @@
     <template #title>
       <EditableText v-model="title"/>
     </template>
-    <template #center>
-      <Slider v-model="globalVolume" :min="0" :max="100" :step="1" />
-    </template>
     <template #right>
+      <Slider v-model="globalVolume" :min="0" :max="100" :step="1" />
       <Button type="button" label="Add" icon="pi pi-plus" @click="toggleAddMenu" />
       <Menu ref="addMenuElement" :model="addMenuItems" :popup="true" />
       <input class="hidden" ref="uploadElement" type="file" @change="onFileUpload" accept="audio/*">
     </template>
   </TheHeader>
-  <Sidebar v-model:visible="sidebarOpened">
-    Content
-  </Sidebar>
+  <TheSidebar v-model:visible="sidebarOpened" v-model:menuItems="allBoardsAsItems">
+  </TheSidebar>
   <main>
       <section>
         <draggable :list="entries" itemKey="id" group="audioBoard" :animation="300" class="grid" >
@@ -64,6 +61,7 @@
 <script>
 import { ref, reactive } from 'vue'
 import TheHeader from '@/components/TheHeader.vue'
+import TheSidebar from '@/components/TheSidebar.vue'
 import EditableText from '@/components/EditableText.vue'
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
@@ -83,25 +81,25 @@ export default {
   name: 'SoundBoard',
   components: {
     TheHeader,
+    TheSidebar,
     EditableText,
     Slider,
     Button,
     Menu,
     draggable,
     SoundPlayer,
-    BoardSeparator,
-    Sidebar
+    BoardSeparator
   },
 
   props: {
     id: {
       type: String,
-      default: 'default'
+      default: '0'
     }
   },
 
   setup(props) {
-    const { title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry } = useBoard(props.id)
+    const { title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry, allBoardsAsItems } = useBoard(props.id)
     const { globalVolume, stopAll } = useGlobalAudioControls()
     const { uploadElement, showUploadPrompt, onFileUpload } = useAudioUpload({addToBoard: addEntry})
     const { addMenuElement, toggleAddMenu, addMenuItems } = useAddBoardEntryMenu({onUpload: showUploadPrompt, onSeparator: addSection})
@@ -117,7 +115,7 @@ export default {
     }
 
     return {
-      title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry,
+      title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry, allBoardsAsItems,
       uploadElement, showUploadPrompt, onFileUpload,
       globalVolume, stopAll,
       addMenuElement, toggleAddMenu, addMenuItems,

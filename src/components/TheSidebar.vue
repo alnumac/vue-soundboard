@@ -1,30 +1,27 @@
 <template>
-  <Toolbar>
-    <template #left>
-      <Button
-        icon="pi pi-bars"
-        class="p-button-rounded p-button-text p-button-plain"
-        @click="openSidebar"
-      />
-      <slot name="title">App</slot>
-    </template>
-    <template #right>
-      <slot name="right"></slot>
-    </template>
-  </Toolbar>
+  <Sidebar>
+    <div class="sidebar-menu">
+      <Menu :model="menuItems">
+      </Menu>
+    </div>
+  </Sidebar>
 </template>
 
 <script>
-import Toolbar from 'primevue/toolbar';
-import Button from 'primevue/button';
+import Sidebar from 'primevue/sidebar';
+import Menu from 'primevue/menu';
 
 export default {
   components: {
-    Toolbar,
-    Button
+    Sidebar,
+    Menu
+  },
+  props: {
+    menuItems: Object
   },
   emits: [
-    'openSidebar'
+    'openSidebar',
+    'update:menuItems'
   ],
   setup(props, context) {
     function openSidebar() {
@@ -56,5 +53,15 @@ header>div {
   width: 48px;
   height: 48px;
   padding: 12px;
+} */
+
+.sidebar-menu::v-deep(.p-menu) {
+  background-color: unset;
+  border:unset;
+  width: 100%;
+}
+
+/* ::v-deep(.p-menu) {
+  background-color: unset;
 } */
 </style>

@@ -1,19 +1,14 @@
 <template>
-  <SoundBoard />
+  <RouterView :key="$route.fullPath"></RouterView>
 </template>
 
 <script>
-// import { ref } from 'vue'
-// import TheHeader from '@/components/TheHeader.vue'
-import SoundBoard from '@/pages/SoundBoard.vue'
-
-//mdiHeadphones, mdiMusic, mdiMusicNote, mdiWaveform
+import { RouterView } from 'vue-router'
 
 export default {
   name: 'App',
   components: {
-    // TheHeader,
-    SoundBoard
+    RouterView,
   },
   setup() {
     return {
