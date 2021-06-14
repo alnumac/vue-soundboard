@@ -1,4 +1,5 @@
 import { ref, watch } from 'vue'
+import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
 import { Howler } from 'howler';
 
 export default function useGlobalAudioControls() {
@@ -10,8 +11,16 @@ export default function useGlobalAudioControls() {
     Howler.stop()
   }
 
+  function destroyAll() {
+    Howler.unload()
+  }
+
+  onBeforeRouteLeave(destroyAll)
+  onBeforeRouteUpdate(destroyAll)
+
   return {
     globalVolume,
-    stopAll
+    stopAll,
+    destroyAll
   }
 }

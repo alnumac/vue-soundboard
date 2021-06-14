@@ -66,7 +66,6 @@ import EditableText from '@/components/EditableText.vue'
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
 import Slider from 'primevue/slider';
-import Sidebar from 'primevue/sidebar';
 import SoundPlayer from '@/components/SoundPlayer.vue'
 import BoardSeparator from '@/components/BoardSeparator.vue'
 import draggable from 'vuedraggable'
@@ -146,7 +145,7 @@ export default {
   display: grid;
   gap: 1rem;
   grid-template-columns: [row-start] repeat(auto-fill, 160px) [row-end];
-  justify-content: center;
+  justify-content: left;
 }
  
 div.grid:empty {

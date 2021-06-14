@@ -2,6 +2,12 @@
   <Sidebar>
     <div class="sidebar-menu">
       <Menu :model="menuItems">
+        <!-- <template #item="{item}">
+          <router-link :to="item.to || ''" class="p-menuitem-link" role="menuitem" @click="item.command || function() {}">
+            <span class="p-menuitem-icon" :class="item.icon"></span>
+            <span class="p-menuitem-text">{{ item.label }}</span>
+          </router-link>
+        </template> -->
       </Menu>
     </div>
   </Sidebar>
@@ -35,25 +41,6 @@ export default {
 </script>
 
 <style scoped>
-/* header {
-  position: sticky;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  height: 64px;
-  width:100%;
-}
-header>div {
-  display: flex;
-  align-items: center;
-} */
-
-/* .icon {
-  width: 48px;
-  height: 48px;
-  padding: 12px;
-} */
 
 .sidebar-menu::v-deep(.p-menu) {
   background-color: unset;
@@ -61,7 +48,4 @@ header>div {
   width: 100%;
 }
 
-/* ::v-deep(.p-menu) {
-  background-color: unset;
-} */
 </style>

@@ -13,7 +13,7 @@ export default function useBoard(boardId) {
   const largestId = ref(0)
 
   async function addBoard() {
-    const new_id = largestId.value + 1
+    const new_id = (largestId.value + 1).toString()
     const new_board = {
       title: 'New board',
       entries: [],
