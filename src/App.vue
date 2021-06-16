@@ -1,14 +1,17 @@
 <template>
   <RouterView :key="$route.fullPath"></RouterView>
+  <ConfirmDialog></ConfirmDialog>
 </template>
 
 <script>
 import { RouterView } from 'vue-router'
+import ConfirmDialog from 'primevue/confirmdialog';
 
 export default {
   name: 'App',
   components: {
     RouterView,
+    ConfirmDialog,
   },
   setup() {
     return {

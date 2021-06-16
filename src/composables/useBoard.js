@@ -70,6 +70,10 @@ export default function useBoard(boardId) {
     loadBoards()
   }
 
+  async function deleteBoard() {
+    await db.boards.removeItem(id.value)
+  }
+
   function loadSections(sections_in_db) {
     const loaded_sections = []
     sections_in_db.forEach(section => {
@@ -149,6 +153,7 @@ export default function useBoard(boardId) {
     addEntry,
     removeEntry,
     allBoards,
-    allBoardsAsItems
+    allBoardsAsItems,
+    deleteBoard
   }
 }

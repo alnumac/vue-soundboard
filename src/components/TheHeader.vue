@@ -3,13 +3,17 @@
     <template #left>
       <Button
         icon="pi pi-bars"
-        class="p-button-rounded p-button-text p-button-plain"
+        class="p-button-rounded p-button-text p-button-plain menu-button"
         @click="openSidebar"
       />
-      <slot name="title">App</slot>
+      <div class="left-container">
+        <slot name="left">App</slot>
+      </div>
     </template>
     <template #right>
-      <slot name="right"></slot>
+      <div class="right-container">
+        <slot name="right"></slot>
+      </div>
     </template>
   </Toolbar>
 </template>
@@ -38,23 +42,15 @@ export default {
 </script>
 
 <style scoped>
-/* header {
-  position: sticky;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  height: 64px;
-  width:100%;
+.menu-button {
+  margin-right: 8px;
 }
-header>div {
-  display: flex;
-  align-items: center;
-} */
 
-/* .icon {
-  width: 48px;
-  height: 48px;
-  padding: 12px;
-} */
+.left-container, .right-container {
+  display:grid;
+  grid-auto-flow: column;
+  grid-gap: 8px;
+  align-items: center;
+}
+
 </style>

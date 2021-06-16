@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="elEditable"
     class="editable"
     spellcheck="false"
     contenteditable
@@ -11,11 +12,11 @@
 </template>
 
 <script>
-// ref, reactive, toRefs, computed, watch, onMounted, onUpdated, onUnmounted
-// import { ref } from 'vue'
+import { ref } from 'vue'
 
 export default {
-  components: { },
+  components: {
+  },
   props: {
     modelValue: {
       type: String,
@@ -26,6 +27,12 @@ export default {
     'update:modelValue'
   ],
   setup(props, context) {
+    const elEditable = ref(null)
+
+    function onClickIcon(event) {
+      elEditable.value.focus()
+    }
+
     function onKeydown(event) {
       if (event.key === "Enter") {
         event.target.blur()
@@ -45,6 +52,8 @@ export default {
     }
 
     return {
+      elEditable,
+      onClickIcon,
       onKeydown,
       onBlur
     }
@@ -53,6 +62,7 @@ export default {
 </script>
 
 <style scoped>
+
 .editable {
   padding: 0px 0.5rem;
   font-size: 1.25rem;
@@ -65,30 +75,24 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   
+  cursor: pointer;
   background-color: unset;
   border: none;
   color: inherit;
-  cursor: default;
   border-radius: 4px;
   min-width: unset;
   max-width: unset;
   width: unset;
+  transition: background-color 280ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .editable:hover {
-  background-color: hsl(
-    var(--md-color-surface-h),
-    var(--md-color-surface-s),
-    calc( var(--md-color-surface-l) + 12% )
-  );
+  background-color: hsla(0, 100%, 100%, 6%);
 }
 
 .editable:focus {
-  background-color: hsl(
-    var(--md-color-surface-h),
-    var(--md-color-surface-s),
-    calc( var(--md-color-surface-l) + 17% )
-  );
+  background-color: hsla(0, 0%, 0%, 20%);
+  border: solid 1px hsla(0, 100%, 100%, 20%);
   cursor: text;
   outline: none;
 }

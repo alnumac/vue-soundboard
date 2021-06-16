@@ -1,7 +1,8 @@
 <template>
   <TheHeader @openSidebar="openSidebar">
-    <template #title>
-      <EditableText v-model="title"/>
+    <template #left>
+      <EditableText v-model="title" identifier="soundboard-title"/>
+      <Button @click="confirmDelete" type="button" class="p-button-text p-button-rounded p-button-danger" icon="pi pi-trash" />
     </template>
     <template #right>
       <Slider v-model="globalVolume" :min="0" :max="100" :step="1" />
@@ -38,7 +39,7 @@
           @remove="removeSection(index)"
         >
           <template #title>
-            <EditableText v-model="section.title" />
+            <EditableText v-model="section.title" :identifier="section.id" />
           </template>
         </BoardSeparator>
         <draggable :list="section.entries" itemKey="id" group="audioBoard" :animation="300" class="grid" >
@@ -66,6 +67,7 @@ import EditableText from '@/components/EditableText.vue'
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
 import Slider from 'primevue/slider';
+import { useConfirm } from "primevue/useconfirm";
 import SoundPlayer from '@/components/SoundPlayer.vue'
 import BoardSeparator from '@/components/BoardSeparator.vue'
 import draggable from 'vuedraggable'
@@ -98,10 +100,23 @@ export default {
   },
 
   setup(props) {
-    const { title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry, allBoardsAsItems } = useBoard(props.id)
+    const { title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry, allBoardsAsItems, deleteBoard } = useBoard(props.id)
     const { globalVolume, stopAll } = useGlobalAudioControls()
     const { uploadElement, showUploadPrompt, onFileUpload } = useAudioUpload({addToBoard: addEntry})
     const { addMenuElement, toggleAddMenu, addMenuItems } = useAddBoardEntryMenu({onUpload: showUploadPrompt, onSeparator: addSection})
+    
+    const confirmService = useConfirm()
+    const confirmDelete = () => confirmService.require({
+      message: 'Do you want to delete this soundboard?',
+      header: 'Delete Soundboard',
+      icon: 'pi pi-info-circle',
+      acceptClass: 'p-button-danger',
+      accept: () => {
+        deleteBoard()
+      },
+      reject: () => {
+      }
+    })
 
     const loadedSounds = reactive({})
     function onSoundLoad({ soundId, state }) {
@@ -114,6 +129,7 @@ export default {
     }
 
     return {
+      confirmDelete,
       title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry, allBoardsAsItems,
       uploadElement, showUploadPrompt, onFileUpload,
       globalVolume, stopAll,
