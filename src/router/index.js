@@ -1,11 +1,12 @@
 import { createWebHistory, createRouter } from "vue-router";
+import Home from "@/pages/Home.vue";
 import SoundBoard from "@/pages/SoundBoard.vue";
 
 const routes = [
   {
     path: "/",
-    name: "Default",
-    component: SoundBoard,
+    name: "Home",
+    component: Home,
   },
   {
     path: "/:id",

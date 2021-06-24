@@ -2,6 +2,13 @@ import localforage from 'localforage';
 
 const dbName = 'Soundboard App';
 
+const app = localforage.createInstance({
+  driver      : localforage.INDEXEDDB,
+  name        : dbName,
+  storeName   : 'app',
+  description : ''
+})
+
 const boards = localforage.createInstance({
   driver      : localforage.INDEXEDDB,
   name        : dbName,
@@ -24,6 +31,7 @@ const files = localforage.createInstance({
 })
 
 export default {
+  app,
   boards,
   entries,
   files

@@ -1,10 +1,11 @@
 import { ref, reactive, computed, watch, onMounted, toRaw } from 'vue'
+import { onBeforeRouteUpdate } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
 import { debounce } from 'lodash';
 
 import db from '@/db'
 
-export default function useBoard(boardId) {
+export default function useSoundBoard(boardId) {
   const id = ref(boardId)
   const title = ref('New board')
   const entries = reactive([])
@@ -12,52 +13,13 @@ export default function useBoard(boardId) {
 
   const largestId = ref(0)
 
-  async function addBoard() {
-    const new_id = (largestId.value + 1).toString()
-    const new_board = {
-      title: 'New board',
-      entries: [],
-      sections: [],
-    }
-    await db.boards.setItem(new_id, new_board)
-    loadBoards()
-  }
-
   async function loadBoard() {
     const loaded_board = await db.boards.getItem(id.value)
     if (loaded_board !== null) {
       title.value = loaded_board.title
-      entries.push(...loadEntries(loaded_board.entries))
-      sections.push(...loadSections(loaded_board.sections))
+      entries.splice(0, entries.length, ...loadEntries(loaded_board.entries))
+      sections.splice(0, sections.length, ...loadSections(loaded_board.sections))
     }
-  }
-
-  const allBoards = reactive([])
-  const allBoardsAsItems = computed(() => {
-    const allBoardsItems =  allBoards.map(({title, id}) => {
-      return {
-        label: title,
-        to: '/' + id
-      }
-    })
-    allBoardsItems.push({
-      separator: true
-    }, {
-      label: 'Create board',
-      icon: 'pi pi-plus',
-      command: () => addBoard()
-    })
-    return allBoardsItems
-  })
-
-  async function loadBoards() {
-    await db.boards.iterate((value, key, iterationNumber) => {
-      value['id'] = key
-      allBoards[iterationNumber - 1] = value
-      const keyInt = parseInt(key)
-      if (keyInt > largestId.value)
-        largestId.value = keyInt
-    })
   }
 
   async function saveBoard() {
@@ -67,7 +29,6 @@ export default function useBoard(boardId) {
       sections: toRaw(sections),
     }
     await db.boards.setItem(id.value, new_board)
-    loadBoards()
   }
 
   async function deleteBoard() {
@@ -139,7 +100,8 @@ export default function useBoard(boardId) {
   }
 
   onMounted(loadBoard)
-  onMounted(loadBoards)
+  onBeforeRouteUpdate((to) => {id.value = to.params.id})
+  watch(id, loadBoard)
   watch([title, entries, sections], debounce(saveBoard, 500), { deep: true })
 
   return {
@@ -152,8 +114,6 @@ export default function useBoard(boardId) {
     moveSectionDown,
     addEntry,
     removeEntry,
-    allBoards,
-    allBoardsAsItems,
     deleteBoard
   }
 }
