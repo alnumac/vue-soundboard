@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { computed, onBeforeUpdate } from 'vue'
+import { computed } from 'vue'
 import Sidebar from 'primevue/sidebar';
 import Menu from 'primevue/menu';
 
@@ -24,7 +24,7 @@ export default {
   },
   emits: [
   ],
-  setup(props, context) {
+  setup() {
     const currentRoute = useRoute()
     const { soundBoardList, addSoundBoard } = useSoundBoardList()
 

@@ -29,10 +29,6 @@ export default {
   setup(props, context) {
     const elEditable = ref(null)
 
-    function onClickIcon(event) {
-      elEditable.value.focus()
-    }
-
     function onKeydown(event) {
       if (event.key === "Enter") {
         event.target.blur()
@@ -53,7 +49,6 @@ export default {
 
     return {
       elEditable,
-      onClickIcon,
       onKeydown,
       onBlur
     }
