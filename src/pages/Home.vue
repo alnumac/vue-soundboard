@@ -30,11 +30,10 @@
 </template>
 
 <script>
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import TheHeader from '@/components/TheHeader.vue'
 
 import Button from 'primevue/button';
-import Menu from 'primevue/menu';
 import { useConfirm } from "primevue/useconfirm";
 import draggable from 'vuedraggable'
 import SoundBoardListItem from '@/components/SoundBoardListItem.vue'
@@ -47,7 +46,6 @@ export default {
   components: {
     TheHeader,
     Button,
-    Menu,
     draggable,
     SoundBoardListItem
   },
