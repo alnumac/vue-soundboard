@@ -42,7 +42,7 @@
             <label>Icon</label>
             <IconSelector v-model="tempEditIcon"/>
             <label>Title</label>
-            <InputText type="text" v-model="tempEditTitle" required="true"/>
+            <InputText type="text" v-model="tempEditTitle" required="true" style="width: 300px;" />
           </div>
           <template #footer>
             <Button label="Save" icon="pi pi-check" class="" @click="saveEdit" />
