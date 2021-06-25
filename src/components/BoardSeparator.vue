@@ -23,9 +23,6 @@
 </template>
 
 <script>
-//ref, reactive, toRefs, computed, watch, onMounted, onUpdated, onUnmounted
-//import { ref } from 'vue'
-
 import Button from 'primevue/button';
 
 export default {

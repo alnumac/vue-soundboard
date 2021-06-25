@@ -17,11 +17,11 @@ export default function useAddBoardEntryMenu({
           icon: 'pi pi-upload',
           command: () => onUpload()
         },
-        {
-          label: 'From library',
-          icon: 'pi pi-book',
-          command: () => onLibrary()
-        }
+        // {
+        //   label: 'From library',
+        //   icon: 'pi pi-book',
+        //   command: () => onLibrary()
+        // }
       ]
     },
     {

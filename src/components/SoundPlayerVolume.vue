@@ -25,7 +25,6 @@
 </template>
 
 <script>
-//ref, reactive, toRefs, computed, watch, onMounted, onUpdated, onUnmounted
 import { ref, watch, computed } from 'vue'
 
 import SvgIcon from '@jamescoyle/vue-icon'

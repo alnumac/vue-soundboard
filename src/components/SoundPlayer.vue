@@ -13,7 +13,6 @@
     <div class="title">{{ title }}</div>
     <div class="actions">
       <div class="icon volume">
-        <!-- <SvgIcon type="mdi" :size="24" :path="mdiVolumeHigh" /> -->
         <SoundPlayerVolume v-model="localVolume" />
       </div>
       <div class="icon loop">
@@ -69,11 +68,8 @@ import Menu from 'primevue/menu';
 import Dialog from 'primevue/dialog';
 
 import SoundPlayerVolume from '@/components/SoundPlayerVolume'
-// import SoundPlayerMore from '@/components/SoundPlayerMore'
-// import EditableText from '@/components/EditableText.vue'
 import InputText from 'primevue/inputtext';
 import IconSelector from '@/components/IconSelector'
-// import InputSwitch from 'primevue/inputswitch';
 
 export default {
   props: {
