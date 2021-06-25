@@ -13,7 +13,6 @@
     <div class="title">{{ title }}</div>
     <div class="actions">
       <div class="icon volume">
-        <!-- <SvgIcon type="mdi" :size="24" :path="mdiVolumeHigh" /> -->
         <SoundPlayerVolume v-model="localVolume" />
       </div>
       <div class="icon loop">
@@ -69,11 +68,8 @@ import Menu from 'primevue/menu';
 import Dialog from 'primevue/dialog';
 
 import SoundPlayerVolume from '@/components/SoundPlayerVolume'
-// import SoundPlayerMore from '@/components/SoundPlayerMore'
-// import EditableText from '@/components/EditableText.vue'
 import InputText from 'primevue/inputtext';
 import IconSelector from '@/components/IconSelector'
-// import InputSwitch from 'primevue/inputswitch';
 
 export default {
   props: {
@@ -169,27 +165,20 @@ export default {
     }
 
     async function togglePlay() {
-      console.log('Toggling play')
       if (loading.value) {
-        console.log('is loading')
         return
       }
       if (howl.value === null) {
-        console.log('howl is null')
         await loadFileAndCreateHowl(props.id)
       }
 
       if (howl.value.state() === 'unloaded') {
-        console.log('howl is unloaded')
         await howl.value.load()
       }
       
       if (!howl.value.playing()) {
-        console.log('starting play')
-        console.dir(howl.value)
         await play()
       } else {
-        console.log('stopping play')
         await stop()
       }
     }

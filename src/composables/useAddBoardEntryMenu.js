@@ -2,7 +2,7 @@ import { ref, reactive } from 'vue'
 
 export default function useAddBoardEntryMenu({
     onUpload = () => {},
-    onLibrary = () => {},
+    // onLibrary = () => {},
     onSeparator = () => {},
 }) {
   const addMenuElement = ref(null)
@@ -17,11 +17,11 @@ export default function useAddBoardEntryMenu({
           icon: 'pi pi-upload',
           command: () => onUpload()
         },
-        {
-          label: 'From library',
-          icon: 'pi pi-book',
-          command: () => onLibrary()
-        }
+        // {
+        //   label: 'From library',
+        //   icon: 'pi pi-book',
+        //   command: () => onLibrary()
+        // }
       ]
     },
     {

@@ -22,8 +22,7 @@
     "uuid": "^8.3.2",
     "vue": "^3.1.1",
     "vue-router": "^4.0.10",
-    "vuedraggable": "^4.0.3",
-    "wavesurfer.js": "^5.1.0"
+    "vuedraggable": "^4.0.3"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.5.13",
