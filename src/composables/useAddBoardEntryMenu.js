@@ -2,7 +2,7 @@ import { ref, reactive } from 'vue'
 
 export default function useAddBoardEntryMenu({
     onUpload = () => {},
-    onLibrary = () => {},
+    // onLibrary = () => {},
     onSeparator = () => {},
 }) {
   const addMenuElement = ref(null)

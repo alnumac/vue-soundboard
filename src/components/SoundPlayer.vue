@@ -165,27 +165,20 @@ export default {
     }
 
     async function togglePlay() {
-      console.log('Toggling play')
       if (loading.value) {
-        console.log('is loading')
         return
       }
       if (howl.value === null) {
-        console.log('howl is null')
         await loadFileAndCreateHowl(props.id)
       }
 
       if (howl.value.state() === 'unloaded') {
-        console.log('howl is unloaded')
         await howl.value.load()
       }
       
       if (!howl.value.playing()) {
-        console.log('starting play')
-        console.dir(howl.value)
         await play()
       } else {
-        console.log('stopping play')
         await stop()
       }
     }

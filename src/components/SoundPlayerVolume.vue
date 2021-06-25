@@ -65,7 +65,7 @@ export default {
       }
     }
 
-    function onFocus(event) {
+    function onFocus() {
       active.value = true
     }
 
