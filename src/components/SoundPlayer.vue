@@ -1,24 +1,30 @@
 <template>
-  <div class="container md-color-surface md-elevation-card"
+  <div class="container md-elevation-z2"
     :class="{
       playing: playing,
-      loading: loading
+      loading: loading,
     }"
-    @click="togglePlay">
+    @click="togglePlay"
+  >
     <div class="icon primary">
       <LoadSpinner v-if="loading"/>
       <SvgIcon v-if="!loading" type="mdi" :size="36" :path="icon" />
     </div>
-    <div class="title">
-      {{ title }}
-    </div>
+    <div class="title">{{ title }}</div>
     <div class="actions">
       <div class="icon volume">
         <!-- <SvgIcon type="mdi" :size="24" :path="mdiVolumeHigh" /> -->
         <SoundPlayerVolume v-model="localVolume" />
       </div>
-      <div class="icon loop" @click.stop="toggleLoop">
-        <SvgIcon type="mdi" :size="24" :path="looping ? mdiRepeat : mdiRepeatOff" />
+      <div class="icon loop">
+        <Button
+          type="button"
+          icon="pi"
+          class="p-button-rounded p-button-text p-button-plain"
+          @click.stop="toggleLoop"
+        >
+          <SvgIcon type="mdi" :size="24" :path="looping ? mdiRepeat : mdiRepeatOff" />
+        </Button>
       </div>
       <div class="icon more">
         <Button
@@ -28,7 +34,7 @@
           @click.stop="toggleMoreMenu"
         />
         <Menu ref="moreMenuElement" :model="moreMenuItems" :popup="true" />
-        <Dialog v-model:visible="displayEdit" :modal="true" :dismissableMask="true">
+        <Dialog v-model:visible="displayEdit" :modal="true">
           <template #header>
             <h3>Edit sound</h3>
           </template>
@@ -36,9 +42,7 @@
             <label>Icon</label>
             <IconSelector v-model="tempEditIcon"/>
             <label>Title</label>
-            <InputText type="text" v-model="tempEditTitle" required="true"/>
-            <!-- <label>Loop</label>
-            <InputSwitch v-model="looping" /> -->
+            <InputText type="text" v-model="tempEditTitle" required="true" style="width: 300px;" />
           </div>
           <template #footer>
             <Button label="Save" icon="pi pi-check" class="" @click="saveEdit" />
@@ -83,19 +87,16 @@ export default {
       type: Object,
       required: true,
       default: () => ({})
-    }
+    },
   },
   components: {
     SvgIcon,
     LoadSpinner,
     SoundPlayerVolume,
-    // SoundPlayerMore,
     Button,
     Menu,
     Dialog,
     InputText,
-    //InputSwitch,
-    //EditableText,
     IconSelector
   },
   emits: [
@@ -113,6 +114,8 @@ export default {
     const looping = ref(false)
 
     const howl = ref(null)
+
+    const hover = ref(false)
 
     const state = reactive({
       howl,
@@ -166,25 +169,49 @@ export default {
     }
 
     async function togglePlay() {
-      if (loading.value)
+      console.log('Toggling play')
+      if (loading.value) {
+        console.log('is loading')
         return
-
-      if (howl.value === null)
+      }
+      if (howl.value === null) {
+        console.log('howl is null')
         await loadFileAndCreateHowl(props.id)
+      }
+
+      if (howl.value.state() === 'unloaded') {
+        console.log('howl is unloaded')
+        await howl.value.load()
+      }
       
       if (!howl.value.playing()) {
+        console.log('starting play')
+        console.dir(howl.value)
         await play()
       } else {
+        console.log('stopping play')
         await stop()
       }
     }
 
     async function play() {
-      howl.value.play()
+      howl.value.off('fade')
+      howl.value.volume(localVolume.value)
+      if (looping.value) {
+        howl.value.play()
+        howl.value.fade(0, localVolume.value, 500)
+      } else {
+        howl.value.play()
+      }
     }
 
     async function stop() {
-      howl.value.stop()
+      howl.value.fade(howl.value.volume(), 0, 300)
+      howl.value.once('fade', () => {
+        howl.value.stop()
+        howl.value.volume(localVolume.value)
+      }
+      )
     }
 
     async function loadFileAndCreateHowl(soundId) {
@@ -275,6 +302,7 @@ export default {
     return {
       title,
       icon,
+      hover,
       localVolume,
       looping,
       playing,
@@ -300,27 +328,23 @@ export default {
 
 <style scoped>
 .container {
-  width: 160px;
+  position: relative;
+  overflow: hidden;
+  min-width: 160px;
   height: 160px;
   display: grid;
   grid-template-rows: 40px 56px 48px;
   text-align: center;
   align-items: center;
   padding: 12px 6px 0px 6px;
-  border: solid 2px hsla(270, 96%, 79%, 0%);
+  border-style: solid;
+  border-width: 2px;
+  border-color: hsla(0, 100%, 100%, 0%);
 }
 
 .container.playing {
   background-color: hsla(270, 96%, 79%, 14%);
-  border: solid 2px hsl(270, 96%, 79%);
-}
-
-.container.playing:hover {
-  background-color: hsla(270, 96%, 79%, 19%);
-}
-
-.container > * {
-  max-width: 160px;
+  border-color: hsl(270, 96%, 79%);
 }
 
 .icon.primary {
@@ -346,21 +370,14 @@ export default {
 .actions {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  justify-items: center;
 }
-
-/* .actions > .icon:hover {
-  background-color: hsla(0, 100%, 100%, 10%);
-} */
 
 .actions > .icon {
   height: 48px;
   width: 48px;
   color: hsla(0, 100%, 100%, 59%);
   border-radius: 50%;
-}
-
-.actions > .icon.loop {
-  padding: 12px;
 }
 
 h3 {

@@ -1,21 +1,24 @@
-import { ref, reactive, watch, onMounted, toRaw } from 'vue'
+import { ref, reactive, computed, watch, onMounted, toRaw } from 'vue'
+import { onBeforeRouteUpdate } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
 import { debounce } from 'lodash';
 
 import db from '@/db'
 
-export default function useBoard(boardId) {
+export default function useSoundBoard(boardId) {
   const id = ref(boardId)
-  const title = ref('Default')
+  const title = ref('New board')
   const entries = reactive([])
   const sections = reactive([])
+
+  const largestId = ref(0)
 
   async function loadBoard() {
     const loaded_board = await db.boards.getItem(id.value)
     if (loaded_board !== null) {
       title.value = loaded_board.title
-      entries.push(...loadEntries(loaded_board.entries))
-      sections.push(...loadSections(loaded_board.sections))
+      entries.splice(0, entries.length, ...loadEntries(loaded_board.entries))
+      sections.splice(0, sections.length, ...loadSections(loaded_board.sections))
     }
   }
 
@@ -26,6 +29,10 @@ export default function useBoard(boardId) {
       sections: toRaw(sections),
     }
     await db.boards.setItem(id.value, new_board)
+  }
+
+  async function deleteBoard() {
+    await db.boards.removeItem(id.value)
   }
 
   function loadSections(sections_in_db) {
@@ -93,6 +100,8 @@ export default function useBoard(boardId) {
   }
 
   onMounted(loadBoard)
+  onBeforeRouteUpdate((to) => {id.value = to.params.id})
+  watch(id, loadBoard)
   watch([title, entries, sections], debounce(saveBoard, 500), { deep: true })
 
   return {
@@ -104,6 +113,7 @@ export default function useBoard(boardId) {
     moveSectionUp,
     moveSectionDown,
     addEntry,
-    removeEntry
+    removeEntry,
+    deleteBoard
   }
 }

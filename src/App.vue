@@ -1,22 +1,32 @@
 <template>
-  <SoundBoard />
+  <TheSidebar v-model:visible="sidebarOpened" />
+  
+  <RouterView @openSideBar="openSideBar">
+  </RouterView>
+  <ConfirmDialog></ConfirmDialog>
 </template>
 
 <script>
-// import { ref } from 'vue'
-// import TheHeader from '@/components/TheHeader.vue'
-import SoundBoard from '@/pages/SoundBoard.vue'
-
-//mdiHeadphones, mdiMusic, mdiMusicNote, mdiWaveform
+import { ref } from 'vue'
+import { RouterView } from 'vue-router'
+import ConfirmDialog from 'primevue/confirmdialog';
+import TheSidebar from '@/components/TheSidebar.vue'
 
 export default {
   name: 'App',
   components: {
-    // TheHeader,
-    SoundBoard
+    TheSidebar,
+    RouterView,
+    ConfirmDialog,
   },
   setup() {
+    const sidebarOpened = ref(false)
+    function openSideBar() {
+      sidebarOpened.value = true
+    }
     return {
+      sidebarOpened,
+      openSideBar
     }
   }
 }
@@ -87,22 +97,6 @@ hr {
   margin-top: 2rem;
 }
 
-/*button.p-button, div.p-slider .p-slider-range {
-  background: var(--md-color-primary);
-}*/
-
-/* button.p-button:enabled:hover {
-  background: var(--md-color-primary);
-}
-
-button.p-button:enabled:active {
-  background: var(--md-color-primary);
-}
-
-button.p-button:enabled:focus {
-  background: var(--md-color-primary);
-} */
-
 div.p-slider .p-slider-handle {
   background: #ffffff;
   border: 2px solid var(--md-color-primary);
@@ -113,6 +107,10 @@ div.p-slider .p-slider-handle {
 div.p-slider:not(.p-disabled) .p-slider-handle:hover {
   background: var(--md-color-primary);
   border-color: var(--md-color-primary);
+}
+
+.page-change-enter-active, .page-change-leave-active {
+  transition: opacity .5s;
 }
 
 </style>

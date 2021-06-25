@@ -1,63 +1,56 @@
 <template>
-  <header class="md-elevation-app-bar md-color-surface">
-    <div class="left">
-      <div class="icon"><SvgIcon type="mdi" :size="24" :path="mdiPlayCircle"></SvgIcon></div>
-      <slot name="title">App</slot>
-    </div>
-    <div class="center">
-      <slot name="center">
-      </slot>
-    </div>
-    <div class="right">
-      <slot name="right"></slot>
-    </div>
-  </header>
+  <Toolbar>
+    <template #left>
+      <Button
+        icon="pi pi-bars"
+        class="p-button-rounded p-button-text p-button-plain menu-button"
+        @click="openSidebar"
+      />
+      <div class="left-container">
+        <slot name="left">App</slot>
+      </div>
+    </template>
+    <template #right>
+      <div class="right-container">
+        <slot name="right"></slot>
+      </div>
+    </template>
+  </Toolbar>
 </template>
 
 <script>
-// import { ref, watch } from 'vue'
-import SvgIcon from '@jamescoyle/vue-icon'
-import { mdiPlayCircle } from '@mdi/js'
+import Toolbar from 'primevue/toolbar';
+import Button from 'primevue/button';
 
 export default {
   components: {
-    SvgIcon
+    Toolbar,
+    Button
   },
-  setup() {
+  emits: [
+    'openSidebar'
+  ],
+  setup(props, context) {
+    function openSidebar() {
+      context.emit('openSidebar')
+    }
     return {
-      mdiPlayCircle
+      openSidebar
     }
   }
 }
 </script>
 
 <style scoped>
-header {
-  position: sticky;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  height: 64px;
-  width:100%;
+.menu-button {
+  margin-right: 8px;
 }
-header>div {
-  display: flex;
+
+.left-container, .right-container {
+  display:grid;
+  grid-auto-flow: column;
+  grid-gap: 8px;
   align-items: center;
 }
 
-.icon {
-  width: 48px;
-  height: 48px;
-  padding: 12px;
-}
-
-.center {
-  display: flex;
-  justify-content:center;
-}
-.center {
-  display: flex;
-  justify-content:center;
-}
 </style>
