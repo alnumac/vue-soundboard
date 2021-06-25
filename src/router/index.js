@@ -1,4 +1,4 @@
-import { createWebHistory, createRouter } from "vue-router";
+import { createWebHashHistory, createRouter } from "vue-router";
 import Home from "@/pages/Home.vue";
 import SoundBoard from "@/pages/SoundBoard.vue";
 
@@ -17,7 +17,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('/vue-soundboard/'),
+  history: createWebHashHistory('/vue-soundboard/'),
   routes
 })
 
