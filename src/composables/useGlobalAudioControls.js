@@ -12,13 +12,15 @@ export default function useGlobalAudioControls() {
   }
 
   function stopAll() {
-    Howler.stop()
+    for (const loadedSoundId in loadedSounds) {
+      loadedSounds[loadedSoundId].howl.stop()
+    }
   }
 
   function destroyAll() {
     Howler.unload()
-    for(const property in loadedSounds){
-      delete loadedSounds[property]
+    for(const loadedSoundId in loadedSounds){
+      delete loadedSounds[loadedSoundId]
     }
   }
 

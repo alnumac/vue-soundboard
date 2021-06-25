@@ -4,7 +4,16 @@
       <EditableText v-model="title" identifier="soundboard-title"/>
     </template>
     <template #right>
+      <Button
+          type="button"
+          icon="pi"
+          class="p-button-rounded p-button-text"
+          @click="stopAll"
+        >
+          <SvgIcon type="mdi" :size="24" :path="mdiStopCircle" />
+        </Button>
       <Slider v-model="globalVolume" :min="0" :max="100" :step="1" />
+      <Divider layout="vertical" />
       <Button type="button" label="Add" icon="pi pi-plus" @click="toggleAddMenu" />
       <Menu ref="addMenuElement" :model="addMenuItems" :popup="true" />
       <input class="hidden" ref="uploadElement" type="file" @change="onFileUpload" accept="audio/*" multiple="true">
@@ -85,8 +94,11 @@ import EditableText from '@/components/EditableText.vue'
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
 import Slider from 'primevue/slider';
+import Divider from 'primevue/divider';
 import SoundPlayer from '@/components/SoundPlayer.vue'
 import BoardSeparator from '@/components/BoardSeparator.vue'
+import SvgIcon from '@jamescoyle/vue-icon'
+import { mdiStopCircle } from '@mdi/js';
 import draggable from 'vuedraggable'
 
 import useSoundBoardList from '@/composables/useSoundBoardList'
@@ -101,9 +113,11 @@ export default {
   components: {
     TheHeader,
     EditableText,
+    Divider,
     Slider,
     Button,
     Menu,
+    SvgIcon,
     draggable,
     SoundPlayer,
     BoardSeparator
@@ -135,6 +149,7 @@ export default {
     watch(title, (newValue) => {soundBoardRenamed(props.id, newValue)})
 
     return {
+      mdiStopCircle,
       title, entries, sections, addSection, removeSection, moveSectionUp, moveSectionDown, addEntry, removeEntry, allBoardsAsItems,
       uploadElement, showUploadPrompt, onFileUpload,
       globalVolume, stopAll, loadedSounds, onSoundLoad,
