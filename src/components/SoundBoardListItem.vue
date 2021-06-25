@@ -14,8 +14,7 @@
 </template>
 
 <script>
-//ref, reactive, toRefs, computed, watch, onMounted, onUpdated, onUnmounted
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive } from 'vue'
 import SvgIcon from '@jamescoyle/vue-icon'
 import { mdiDrag } from '@mdi/js'
 import Button from 'primevue/button';

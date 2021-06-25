@@ -1,4 +1,4 @@
-import { ref, reactive, computed, watch, onMounted, toRaw } from 'vue'
+import { ref, reactive, watch, onMounted, toRaw } from 'vue'
 import { onBeforeRouteUpdate } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
 import { debounce } from 'lodash';
@@ -11,7 +11,6 @@ export default function useSoundBoard(boardId) {
   const entries = reactive([])
   const sections = reactive([])
 
-  const largestId = ref(0)
 
   async function loadBoard() {
     const loaded_board = await db.boards.getItem(id.value)
