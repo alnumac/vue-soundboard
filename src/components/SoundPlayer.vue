@@ -148,7 +148,7 @@ export default {
       const loaded_entry = await db.entries.getItem(props.id)
       if (loaded_entry !== null) {
         title.value = loaded_entry.title || title.value
-        looping.value = loaded_entry.looping || looping.value
+        looping.value = loaded_entry.looping
         extension.value = loaded_entry.extension || extension.value
         icon.value = loaded_entry.icon || icon.value
       }
@@ -227,7 +227,7 @@ export default {
             src,
             format: extension.value,
             volume: localVolume.value,
-            looping: looping.value,
+            loop: looping.value,
             onload: () => resolve()
           })
         })
